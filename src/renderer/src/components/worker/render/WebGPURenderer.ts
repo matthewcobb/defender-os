@@ -86,27 +86,27 @@ export class WebGPURenderer implements FrameRenderer {
     this.#ctx.configure({
       device: this.#device,
       format: this.#format,
-      alphaMode: 'opaque',
+      alphaMode: 'opaque'
     })
 
     this.#pipeline = this.#device.createRenderPipeline({
       layout: 'auto',
       vertex: {
         module: this.#device.createShaderModule({
-          code: WebGPURenderer.vertexShaderSource,
+          code: WebGPURenderer.vertexShaderSource
         }),
-        entryPoint: 'vert_main',
+        entryPoint: 'vert_main'
       },
       fragment: {
         module: this.#device.createShaderModule({
-          code: WebGPURenderer.fragmentShaderSource,
+          code: WebGPURenderer.fragmentShaderSource
         }),
         entryPoint: 'frag_main',
-        targets: [{ format: this.#format }],
+        targets: [{ format: this.#format }]
       },
       primitive: {
-        topology: 'triangle-list',
-      },
+        topology: 'triangle-list'
+      }
     })
 
     // Default sampler configuration is nearset + clamp.
@@ -139,9 +139,9 @@ export class WebGPURenderer implements FrameRenderer {
         { binding: 1, resource: this.#sampler },
         {
           binding: 2,
-          resource: this.#device.importExternalTexture({ source: frame }),
-        },
-      ] as any, // TODO: fix typing
+          resource: this.#device.importExternalTexture({ source: frame })
+        }
+      ] as any // TODO: fix typing
     })
 
     const commandEncoder = this.#device.createCommandEncoder()
@@ -152,9 +152,9 @@ export class WebGPURenderer implements FrameRenderer {
           view: textureView,
           clearValue: [1.0, 0.0, 0.0, 1.0],
           loadOp: 'clear',
-          storeOp: 'store',
-        },
-      ],
+          storeOp: 'store'
+        }
+      ]
     }
 
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor)

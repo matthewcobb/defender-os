@@ -1,4 +1,4 @@
-import { ExtraConfig } from "./Globals";
+import { ExtraConfig } from './Globals'
 import { Server } from 'socket.io'
 import { EventEmitter } from 'events'
 

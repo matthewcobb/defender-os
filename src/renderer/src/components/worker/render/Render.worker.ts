@@ -64,7 +64,7 @@ export class RenderWorker {
 
   private decoder = new VideoDecoder({
     output: this.onVideoDecoderOutput,
-    error: this.onVideoDecoderOutputError,
+    error: this.onVideoDecoderOutputError
   })
 
   init = (event: InitEvent) => {
@@ -80,7 +80,7 @@ export class RenderWorker {
         break
     }
     this.videoPort = event.videoPort
-    this.videoPort.onmessage = ev => {
+    this.videoPort.onmessage = (ev) => {
       this.onFrame(ev.data as RenderEvent)
     }
 
@@ -109,8 +109,8 @@ export class RenderWorker {
           new EncodedVideoChunk({
             type: isKeyFrame(frameData) ? 'key' : 'delta',
             data: frameData,
-            timestamp: this.timestamp++,
-          }),
+            timestamp: this.timestamp++
+          })
         )
       } catch (e) {
         console.error(`H264 Render Worker decode error`, e)

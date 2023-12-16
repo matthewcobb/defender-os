@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
-import Settings from "./components/Settings";
+import { useEffect, useState } from 'react'
+import { HashRouter as Router, Route, Routes } from 'react-router-dom'
+import Settings from './components/Settings'
 import './App.css'
-import Info from "./components/Info";
-import Home from "./components/Home";
-import Nav from "./components/Nav";
+import Info from './components/Info'
+import Home from './components/Home'
+import Nav from './components/Nav'
 import Carplay from './components/Carplay'
 import Camera from './components/Camera'
 import { Box, Modal } from '@mui/material'
-import { useCarplayStore } from "./store/store";
+import { useCarplayStore } from './store/store'
 
 // rm -rf node_modules/.vite; npm run dev
-
 
 const style = {
   position: 'absolute',
@@ -21,8 +20,8 @@ const style = {
   height: '95%',
   width: '95%',
   boxShadow: 24,
-  display: "flex"
-};
+  display: 'flex'
+}
 
 function App() {
   const [receivingVideo, setReceivingVideo] = useState(false)
@@ -30,29 +29,26 @@ function App() {
   const [keyCommand, setKeyCommand] = useState('')
   const settings = useCarplayStore((state) => state.settings)
 
-
-
   useEffect(() => {
     document.addEventListener('keydown', onKeyDown)
 
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [settings]);
-
+  }, [settings])
 
   const onKeyDown = (event: KeyboardEvent) => {
     console.log(event.code)
-    if(Object.values(settings!.bindings).includes(event.code)) {
-      let action = Object.keys(settings!.bindings).find(key =>
-        settings!.bindings[key] === event.code
+    if (Object.values(settings!.bindings).includes(event.code)) {
+      let action = Object.keys(settings!.bindings).find(
+        (key) => settings!.bindings[key] === event.code
       )
-      if(action !== undefined) {
+      if (action !== undefined) {
         setKeyCommand(action)
-        setCommandCounter(prev => prev +1)
-        if(action === 'selectDown') {
+        setCommandCounter((prev) => prev + 1)
+        if (action === 'selectDown') {
           console.log('select down')
           setTimeout(() => {
             setKeyCommand('selectUp')
-            setCommandCounter(prev => prev +1)
+            setCommandCounter((prev) => prev + 1)
           }, 200)
         }
       }
@@ -61,23 +57,25 @@ function App() {
 
   return (
     <Router>
-      <div
-        style={{ height: '100%', touchAction: 'none' }}
-        id={'main'}
-        className="App"
-
-      >
-        <Nav receivingVideo={receivingVideo} settings={settings}/>
-        {settings ? <Carplay  receivingVideo={receivingVideo} setReceivingVideo={setReceivingVideo} settings={settings} command={keyCommand} commandCounter={commandCounter}/> : null}
+      <div style={{ height: '100%', touchAction: 'none' }} id={'main'} className="App">
+        <Nav receivingVideo={receivingVideo} settings={settings} />
+        {settings ? (
+          <Carplay
+            receivingVideo={receivingVideo}
+            setReceivingVideo={setReceivingVideo}
+            settings={settings}
+            command={keyCommand}
+            commandCounter={commandCounter}
+          />
+        ) : null}
         <Routes>
-          <Route path={"/"} element={<Home />} />
-          <Route path={"/settings"} element={<Settings settings={settings!}/>} />
-          <Route path={"/info"} element={<Info />} />
-          <Route path={"/camera"} element={<Camera settings={settings!}/>} />
+          <Route path={'/'} element={<Home />} />
+          <Route path={'/settings'} element={<Settings settings={settings!} />} />
+          <Route path={'/info'} element={<Info />} />
+          <Route path={'/camera'} element={<Camera settings={settings!} />} />
         </Routes>
       </div>
     </Router>
-
   )
 }
 

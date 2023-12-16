@@ -78,7 +78,7 @@ export class WebGLRenderer implements FrameRenderer {
     gl.bufferData(
       gl.ARRAY_BUFFER,
       new Float32Array([-1.0, -1.0, -1.0, +1.0, +1.0, +1.0, +1.0, -1.0]),
-      gl.STATIC_DRAW,
+      gl.STATIC_DRAW
     )
 
     const xyLocation = gl.getAttribLocation(shaderProgram, 'xy')

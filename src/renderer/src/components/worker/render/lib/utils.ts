@@ -10,13 +10,10 @@ enum NaluTypes {
   SEI = 6,
   SPS = 7,
   PPS = 8,
-  AUD = 9,
+  AUD = 9
 }
 
-function getNaluFromStream(
-  buffer: Uint8Array,
-  type: NaluTypes,
-): GetNaluResult | null {
+function getNaluFromStream(buffer: Uint8Array, type: NaluTypes): GetNaluResult | null {
   const stream = new NALUStream(buffer, { type: 'annexB' })
 
   for (const nalu of stream.nalus()) {
@@ -46,7 +43,7 @@ function getDecoderConfig(frameData: Uint8Array): VideoDecoderConfig | null {
       codec: sps.MIME,
       codedHeight: sps.picHeight,
       codedWidth: sps.picWidth,
-      hardwareAcceleration: 'prefer-software',
+      hardwareAcceleration: 'prefer-software'
     }
     return decoderConfig
   }

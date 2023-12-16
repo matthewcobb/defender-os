@@ -1,6 +1,6 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { ExtraConfig} from "../main/Globals";
+import { ExtraConfig } from '../main/Globals'
 
 type ApiCallback = (event: IpcRendererEvent, ...args: any[]) => void
 
@@ -8,10 +8,8 @@ export interface Api {
   settings: (callback: ApiCallback) => void
   getSettings: () => void
   saveSettings: (settings: ExtraConfig) => void
-  quit: () =>  void
+  quit: () => void
 }
-
-
 
 // Custom APIs for renderer
 const api: Api = {
@@ -33,4 +31,3 @@ try {
 } catch (error) {
   console.error(error)
 }
-

@@ -4,7 +4,7 @@ import CarplayWeb, {
   SendAudio,
   SendCommand,
   SendTouch,
-  findDevice,
+  findDevice
 } from 'node-carplay/web'
 import { AudioPlayerKey, Command } from './types'
 import { RenderEvent } from './render/RenderEvents'
@@ -37,8 +37,8 @@ const handleMessage = (message: CarplayMessage) => {
       const getPlayerMessage = {
         type: 'getAudioPlayer',
         message: {
-          ...payload,
-        },
+          ...payload
+        }
       }
       postMessage(getPlayerMessage)
     }
@@ -53,7 +53,7 @@ onmessage = async (event: MessageEvent<Command>) => {
       if (carplayWeb) return
       videoPort = event.data.payload.videoPort
       microphonePort = event.data.payload.microphonePort
-      microphonePort.onmessage = ev => {
+      microphonePort.onmessage = (ev) => {
         if (carplayWeb) {
           const data = new SendAudio(ev.data)
           carplayWeb.dongleDriver.send(data)
@@ -65,7 +65,7 @@ onmessage = async (event: MessageEvent<Command>) => {
       const audioKey = createAudioPlayerKey(decodeType, audioType)
       audioBuffers[audioKey] = new RingBuffer(sab, Int16Array)
       if (pendingAudio[audioKey]) {
-        pendingAudio[audioKey].forEach(buf => {
+        pendingAudio[audioKey].forEach((buf) => {
           audioBuffers[audioKey].push(buf)
         })
         pendingAudio[audioKey] = []

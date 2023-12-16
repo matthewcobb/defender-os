@@ -5,7 +5,7 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin({exclude: ['node-carplay']})]
+    plugins: [externalizeDepsPlugin({ exclude: ['node-carplay'] })]
   },
   preload: {
     plugins: [externalizeDepsPlugin()]
@@ -14,8 +14,8 @@ export default defineConfig({
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
-        stream: "stream-browserify",
-        Buffer: "buffer",
+        stream: 'stream-browserify',
+        Buffer: 'buffer'
       }
     },
     optimizeDeps: {
