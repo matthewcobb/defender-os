@@ -8,7 +8,7 @@ import Nav from "./components/Nav";
 import Carplay from './components/Carplay'
 import Camera from './components/Camera'
 import { Box, Modal } from '@mui/material'
-import { useCarplayStore, useStatusStore } from "./store/store";
+import { useCarplayStore } from "./store/store";
 
 // rm -rf node_modules/.vite; npm run dev
 
@@ -28,7 +28,6 @@ function App() {
   const [receivingVideo, setReceivingVideo] = useState(false)
   const [commandCounter, setCommandCounter] = useState(0)
   const [keyCommand, setKeyCommand] = useState('')
-  const [reverse, setReverse] = useStatusStore(state => [state.reverse, state.setReverse])
   const settings = useCarplayStore((state) => state.settings)
 
 
@@ -76,14 +75,6 @@ function App() {
           <Route path={"/info"} element={<Info />} />
           <Route path={"/camera"} element={<Camera settings={settings!}/>} />
         </Routes>
-        <Modal
-          open={reverse}
-          onClick={()=> setReverse(false)}
-        >
-          <Box sx={style}>
-            <Camera settings={settings}/>
-          </Box>
-        </Modal>
       </div>
     </Router>
 

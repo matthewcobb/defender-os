@@ -4,8 +4,6 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { DEFAULT_CONFIG } from 'node-carplay/node'
 import { Socket } from './Socket'
 import * as fs from 'fs';
-import { PiMost } from './PiMost'
-import {Canbus} from "./Canbus";
 import { ExtraConfig, KeyBindings } from "./Globals";
 // import CarplayNode, {DEFAULT_CONFIG, CarplayMessage} from "node-carplay/node";
 
@@ -33,15 +31,8 @@ const EXTRA_CONFIG: ExtraConfig = {
   kiosk: true,
   camera: '',
   microphone: '',
-  piMost: false,
-  canbus: false,
   bindings: DEFAULT_BINDINGS,
-  most: {},
-  canConfig: {}
 }
-
-let piMost: null | PiMost
-let canbus: null | Canbus
 
 let socket: null | Socket
 
@@ -63,22 +54,6 @@ fs.exists(configPath, (exists) => {
       console.log("config created and read")
     }
     socket = new Socket(config!, saveSettings)
-    if(config!.most) {
-      console.log('creating pi most in main')
-      piMost = new PiMost(socket)
-    }
-
-    if(config!.canbus) {
-      console.log("Configuring can", config!.canConfig)
-      canbus = new Canbus('can0',  socket, config!.canConfig)
-      canbus.on('lights', (data) => {
-        console.log('lights', data)
-      })
-      canbus.on('reverse', (data) => {
-        mainWindow?.webContents?.send('reverse', data)
-      })
-    }
-
 })
 
 const handleSettingsReq = (_: IpcMainEvent ) => {
@@ -202,8 +177,6 @@ app.whenReady().then(() => {
 
   ipcMain.on('saveSettings', saveSettings)
 
-  // ipcMain.on('startStream', startMostStream)
-
   ipcMain.on('quit', quit)
 
   // Default open or close DevTools by F12 in development
@@ -226,13 +199,6 @@ const saveSettings = (settings: ExtraConfig) => {
   console.log("saving settings", settings)
   fs.writeFileSync(configPath, JSON.stringify(settings))
 }
-
-// const startMostStream = (_: IpcMainEvent, most: Stream) => {
-//   console.log("stream request")
-//   if(piMost) {
-//     piMost.stream(most)
-//   }
-// }
 
 const quit = (_: IpcMainEvent) => {
   app.quit()
