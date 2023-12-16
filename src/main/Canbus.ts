@@ -1,5 +1,5 @@
 // import {Message} from "*can.node";
-import * as can from "socketcan";
+// import * as can from "socketcan"; // doesnt work on macOS
 import EventEmitter from 'events'
 import { CanConfig } from "./Globals";
 import { Socket } from "./Socket";
