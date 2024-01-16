@@ -1,33 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useRef, useLayoutEffect, useEffect, useState } from 'react'
 import { HashRouter as Router, Route, Routes } from 'react-router-dom'
 import Settings from './components/Settings'
-import './App.css'
+import './App.scss'
 import Info from './components/Info'
 import Home from './components/Home'
+import TopBar from './components/TopBar'
 import Nav from './components/Nav'
 import Carplay from './components/Carplay'
 import Camera from './components/Camera'
-import { Box, Modal } from '@mui/material'
 import { useCarplayStore } from './store/store'
-
-// rm -rf node_modules/.vite; npm run dev
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  height: '95%',
-  width: '95%',
-  boxShadow: 24,
-  display: 'flex'
-}
+import Toggle from './components/Toggle'
 
 function App() {
+  const carPlayRef = useRef<HTMLDivElement>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [receivingVideo, setReceivingVideo] = useState(false)
   const [commandCounter, setCommandCounter] = useState(0)
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  })
+
   const [keyCommand, setKeyCommand] = useState('')
   const settings = useCarplayStore((state) => state.settings)
+
+  useLayoutEffect(() => {
+    if (carPlayRef.current) {
+      setDimensions({
+        width: carPlayRef.current.offsetWidth,
+        height: carPlayRef.current.offsetHeight
+      })
+    }
+  }, [])
 
   useEffect(() => {
     document.addEventListener('keydown', onKeyDown)
@@ -38,7 +42,7 @@ function App() {
   const onKeyDown = (event: KeyboardEvent) => {
     console.log(event.code)
     if (Object.values(settings!.bindings).includes(event.code)) {
-      let action = Object.keys(settings!.bindings).find(
+      const action = Object.keys(settings!.bindings).find(
         (key) => settings!.bindings[key] === event.code
       )
       if (action !== undefined) {
@@ -57,23 +61,35 @@ function App() {
 
   return (
     <Router>
-      <div style={{ height: '100%', touchAction: 'none' }} id={'main'} className="App">
-        <Nav receivingVideo={receivingVideo} settings={settings} />
-        {settings ? (
-          <Carplay
-            receivingVideo={receivingVideo}
-            setReceivingVideo={setReceivingVideo}
-            settings={settings}
-            command={keyCommand}
-            commandCounter={commandCounter}
-          />
-        ) : null}
-        <Routes>
-          <Route path={'/'} element={<Home />} />
-          <Route path={'/settings'} element={<Settings settings={settings!} />} />
-          <Route path={'/info'} element={<Info />} />
-          <Route path={'/camera'} element={<Camera settings={settings!} />} />
-        </Routes>
+      <div id={'app'} className={`App ${drawerOpen ? 'drawer-open' : ''}`}>
+        <main>
+          <TopBar/>
+          <div className="page-container">
+            <div className="page">
+              <Routes>
+                <Route path={'/'} element={<Home />} />
+                <Route path={'/settings'} element={<Settings settings={settings!} />} />
+                <Route path={'/info'} element={<Info />} />
+                <Route path={'/camera'} element={<Camera settings={settings!} />} />
+              </Routes>
+            </div>
+          </div>
+          <Nav receivingVideo={receivingVideo} settings={settings} />
+        </main>
+        <Toggle drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen}/>
+        <aside ref={carPlayRef}>
+          {settings ? (
+            <Carplay
+              width={dimensions.width}
+              height={dimensions.height}
+              receivingVideo={receivingVideo}
+              setReceivingVideo={setReceivingVideo}
+              settings={settings}
+              command={keyCommand}
+              commandCounter={commandCounter}
+            />
+          ) : null}
+        </aside>
       </div>
     </Router>
   )

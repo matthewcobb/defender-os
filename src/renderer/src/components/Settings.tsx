@@ -45,6 +45,10 @@ function Settings({ settings }: SettingsProps) {
   const [openBindings, setOpenBindings] = useState<boolean>(false)
   const saveSettings = useCarplayStore((state) => state.saveSettings)
 
+  const quit = () => {
+    window.api.quit()
+  }
+
   const settingsChange = (key, value) => {
     console.log(
       'changing settings to ',
@@ -323,6 +327,7 @@ function Settings({ settings }: SettingsProps) {
           <Box>
             <Button onClick={() => saveSettings(activeSettings)}>SAVE</Button>
             <Button onClick={() => setOpenBindings(true)}>BINDINGS</Button>
+            <Button onClick={() => quit()}>RESTART PI</Button>
           </Box>
         </Grid>
         <Dialog

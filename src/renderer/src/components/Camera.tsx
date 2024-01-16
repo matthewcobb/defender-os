@@ -27,10 +27,8 @@ const Camera = ({ settings }) => {
 
   return (
     <div>
-      <div>
-        <video ref={videoRef} style={{ maxWidth: '100%', height: 'auto' }} />
+        <video ref={videoRef} style={{ maxWidth: '100%', height: '100%' }} />
         {cameraFound ? null : <Typography>No Camera Found</Typography>}
-      </div>
     </div>
   )
 }

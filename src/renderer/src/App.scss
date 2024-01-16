@@ -1,0 +1,219 @@
+:root {
+  --body-bg: #000000;
+  --carplay-bg: #000000;
+  --top-bar-bg: #1A1D1B;
+  --active-carplay: #90BF00;
+  --box-shadow: 0 2px 12px 0 rgba(0,0,0,0.4);
+  --container-border-radius: 2rem;
+  --text-secondary: #aecbb8;
+  --panel-bg: rgba(166,197,178,0.28);
+}
+
+@import './styles/type';
+@import './styles/panel';
+@import './styles/grid';
+@import './styles/spacing';
+@import './styles/border';
+@import './styles/progress';
+
+.App {
+  animation: app-entrance 2s ease-in-out;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  font-family: 'Rubik';
+}
+
+body {
+  background-color: var(--body-bg);
+  color: white;
+}
+
+#app {
+  position: relative;
+  height: 100vh;
+  touch-action: none;
+  display: grid;
+  grid-template-columns: 400px 3rem auto;
+  overflow: hidden;
+  transition: 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  &.drawer-open {
+    grid-template-columns: 800px 3rem auto;
+    aside {
+      opacity: 0.2;
+    }
+  }
+
+  main {
+    background-image: radial-gradient(circle at 50% 50%, #44534A 0%, #202A24 100%);
+    height: 100vh;
+    box-sizing: content-box;
+    position: relative;
+    box-shadow: var(--box-shadow);
+    display: grid;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    grid-template-rows: min-content auto min-content;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    // Styling the scrollbar
+    &::-webkit-scrollbar {
+      display:none;
+    }
+
+    .top-bar {
+      background-color: var(--top-bar-bg);
+      position: sticky;
+      top: 0;
+      display: grid;
+      grid-auto-flow: column;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      letter-spacing: 0.125rem;
+      font-size: 14px;
+      z-index: 10;
+      .clock {
+        font-weight: bold;
+        font-family: Courier, monospace;
+      }
+    }
+
+    .page-container {
+      height: calc(100% - 2rem);
+      box-sizing: border-box;
+      padding: 1rem;
+      container-type: inline-size;
+      .page {
+        padding-bottom: 0;
+      }
+    }
+
+    nav {
+      position: sticky;
+      bottom: 1rem;
+      margin-top: 1rem;
+      width: calc(100% - 2rem);
+      left: 1rem;
+      right: 1rem;
+      background: var(--panel-bg);
+      box-shadow: var(--box-shadow);
+      border-radius: 0.5rem;
+      backdrop-filter: blur(0.5rem);
+      z-index: 10;
+      display: grid;
+      justify-content: center;
+
+      .MuiButtonBase-root {
+        min-width: 0px;
+      }
+
+      .Mui-selected {
+        color: white;
+      }
+
+      .MuiTabs-indicator {
+        background-color: white;
+      }
+
+      .active {
+        border-top: 0.125rem solid var(--active-carplay);
+      }
+    }
+  }
+
+  .toggle {
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+
+    .icon {
+      transition: transform 0.2s ease;
+    }
+
+    &:after {
+      content:"";
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+    }
+
+    &.drawer-open {
+      &:after {
+        display: block;
+      }
+      .icon {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  aside {
+    background-color: var(--carplay-bg);
+    border-radius: var(--container-border-radius);
+    overflow: hidden;
+    transition: opacity 0.2s ease-in-out;
+
+    #carplay-container {
+      height: 100%;
+      width: 100%;
+
+      .loading {
+        height: 100%;
+        width: 100%;
+        display: grid;
+        justify-content: center;
+        align-items: center;
+        video {
+          height: 100%;
+          margin: 0 auto;
+        }
+      }
+
+      #videoContainer {
+        height: 100%;
+      }
+    }
+  }
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.fade-in-fast {
+  animation: fade-in 0.25s ease-in-out;
+}
+
+.fade-in-slow {
+  animation: fade-in 3s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 100;
+  }
+}
+
+@keyframes app-entrance {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 100;
+    transform: scale(1);
+  }
+}

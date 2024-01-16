@@ -36,6 +36,8 @@ const DEFAULT_BINDINGS: KeyBindings = {
 
 const EXTRA_CONFIG: ExtraConfig = {
   ...DEFAULT_CONFIG,
+  micType: 'box',
+  fps: 60,
   kiosk: true,
   camera: '',
   microphone: '',
@@ -47,8 +49,8 @@ let socket: null | Socket
 fs.exists(configPath, (exists) => {
   if (exists) {
     config = JSON.parse(fs.readFileSync(configPath).toString())
-    let configKeys = JSON.stringify(Object.keys({ ...config }).sort())
-    let defaultKeys = JSON.stringify(Object.keys({ ...EXTRA_CONFIG }).sort())
+    const configKeys = JSON.stringify(Object.keys({ ...config }).sort())
+    const defaultKeys = JSON.stringify(Object.keys({ ...EXTRA_CONFIG }).sort())
     if (configKeys !== defaultKeys) {
       console.log('config updating')
       config = { ...EXTRA_CONFIG, ...config }
@@ -72,15 +74,17 @@ const handleSettingsReq = (_: IpcMainEvent) => {
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 app.commandLine.appendSwitch('disable-webusb-security', 'true')
 console.log(app.commandLine.hasSwitch('disable-webusb-security'))
+
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: config!.width,
-    height: config!.height,
+    width: 1280,
+    height: 400,
     kiosk: config!.kiosk,
     show: false,
     frame: false,
     autoHideMenuBar: true,
+    backgroundColor: '#000000',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -89,6 +93,7 @@ function createWindow(): void {
       webSecurity: false
     }
   })
+
   app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 
   // mainWindow.webContents.session.setDevicePermissionHandler((details) => {
@@ -147,6 +152,8 @@ function createWindow(): void {
     callback({ responseHeaders: details.responseHeaders })
   })
 }
+
+// Create window END
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

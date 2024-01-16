@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { RotatingLines } from 'react-loader-spinner'
-//import './App.css'
+import LoadingVideo from './LoadingVideo'
 import { findDevice, requestDevice, CommandMapping } from 'node-carplay/web'
 import { CarPlayWorker } from './worker/types'
 import useCarplayAudio from './useCarplayAudio'
@@ -10,15 +9,14 @@ import { ExtraConfig } from '../../../main/Globals'
 import { useCarplayStore } from '../store/store'
 import { InitEvent } from './worker/render/RenderEvents'
 
-const width = window.innerWidth
-const height = window.innerHeight
-
 const videoChannel = new MessageChannel()
 const micChannel = new MessageChannel()
 
 const RETRY_DELAY_MS = 15000
 
 interface CarplayProps {
+  width: number
+  height: number
   receivingVideo: boolean
   setReceivingVideo: (receivingVideo: boolean) => void
   settings: ExtraConfig
@@ -27,6 +25,8 @@ interface CarplayProps {
 }
 
 function Carplay({
+  width,
+  height,
   receivingVideo,
   setReceivingVideo,
   settings,
@@ -43,6 +43,8 @@ function Carplay({
   const mainElem = useRef<HTMLDivElement>(null)
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const stream = useCarplayStore((state) => state.stream)
+
+  console.log(width, height)
   const config = {
     fps: settings.fps,
     width: width,
@@ -100,10 +102,6 @@ function Carplay({
       switch (type) {
         case 'plugged':
           setPlugged(true)
-          if (settings.piMost && settings?.most?.stream) {
-            console.log('setting most stream')
-            stream(settings.most.stream)
-          }
           break
         case 'unplugged':
           setPlugged(false)
@@ -197,6 +195,7 @@ function Carplay({
       if (!device) {
         carplayWorker.postMessage({ type: 'stop' })
         setDeviceFound(false)
+        setReceivingVideo(false)
       }
     }
 
@@ -212,35 +211,10 @@ function Carplay({
   const isLoading = !isPlugged
 
   return (
-    <div
-      style={pathname === '/' ? { height: '100%', touchAction: 'none' } : { height: '1px' }}
-      id={'main'}
-      className="App"
-      ref={mainElem}
-    >
-      {(deviceFound === false || isLoading) && pathname === '/' && (
-        <div
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
-        >
-          {deviceFound === false && (
-            <button rel="noopener noreferrer">Plug-In Carplay Dongle and Press</button>
-          )}
-          {deviceFound && (
-            <RotatingLines
-              strokeColor="grey"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="96"
-              visible={true}
-            />
-          )}
+    <div id={'carplay-container'} ref={mainElem}>
+      {(deviceFound === false || isLoading) && (
+        <div className="loading">
+          <LoadingVideo deviceFound={deviceFound} />
         </div>
       )}
       <div
@@ -250,13 +224,6 @@ function Carplay({
         onPointerUp={sendTouchEvent}
         onPointerCancel={sendTouchEvent}
         onPointerOut={sendTouchEvent}
-        style={{
-          height: '100%',
-          width: '100%',
-          padding: 0,
-          margin: 0,
-          display: 'flex'
-        }}
       >
         <canvas ref={canvasRef} id={'video'} style={isPlugged ? { height: '100%' } : undefined} />
       </div>

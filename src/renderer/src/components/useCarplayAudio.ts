@@ -20,6 +20,7 @@ const useCarplayAudio = (worker: CarPlayWorker, microphonePort: MessagePort) => 
       let player = audioPlayers.get(audioKey)
       if (player) return player
       player = new PcmPlayer(format.frequency, format.channel)
+      console.log(player)
       audioPlayers.set(audioKey, player)
       player.volume(defaultAudioVolume)
       player.start()

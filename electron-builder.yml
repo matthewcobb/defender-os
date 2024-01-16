@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: react-carplay
+productName: defenderOS
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: react-carplay
+  executableName: defenderOS
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
