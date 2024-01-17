@@ -327,7 +327,7 @@ function Settings({ settings }: SettingsProps) {
           <Box>
             <Button onClick={() => saveSettings(activeSettings)}>SAVE</Button>
             <Button onClick={() => setOpenBindings(true)}>BINDINGS</Button>
-            <Button onClick={() => quit()}>RESTART PI</Button>
+            <Button onClick={() => quit()}>Quit</Button>
           </Box>
         </Grid>
         <Dialog

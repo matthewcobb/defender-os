@@ -31,6 +31,7 @@
     "@mui/icons-material": "^5.14.11",
     "@mui/material": "^5.14.11",
     "@tomickigrzegorz/react-circular-progress-bar": "^1.1.2",
+    "axios": "^1.6.5",
     "buffer": "^6.0.3",
     "electron-is-dev": "^2.0.0",
     "electron-typescript-ipc": "^3.0.0",

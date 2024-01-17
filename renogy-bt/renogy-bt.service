@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve Flask RenogyBT app
+After=network.target
+
+[Service]
+User=pi
+Group=www-data
+WorkingDirectory=/home/pi/myflaskapp
+Environment="PATH=/home/pi/myflaskapp/venv/bin"
+ExecStart=/home/pi/myflaskapp/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 myapp:app
+
+[Install]
+WantedBy=multi-user.target

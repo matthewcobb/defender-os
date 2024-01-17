@@ -214,7 +214,7 @@ function Carplay({
     <div id={'carplay-container'} ref={mainElem}>
       {(deviceFound === false || isLoading) && (
         <div className="loading">
-          <LoadingVideo deviceFound={deviceFound} />
+          <LoadingVideo deviceFound={deviceFound} receivingVideo={receivingVideo} />
         </div>
       )}
       <div

@@ -19,15 +19,15 @@ export default function Nav({ receivingVideo, settings }) {
         <Tabs value={value} onChange={handleChange} aria-label="icon label tabs example" centered>
           <Tab
             className={receivingVideo === true ? 'active' : ''}
-            icon={<CarIcon />}
+            icon={<CarIcon fontSize={"large"} />}
             to={'/'}
             component={Link}
           />
-          <Tab icon={<InfoIcon />} to={'/info'} component={Link} />
+          <Tab icon={<InfoIcon fontSize={"large"} />} to={'/info'} component={Link} />
           {settings?.camera !== '' ? (
-            <Tab icon={<CameraIcon />} to={'/camera'} component={Link} />
+            <Tab icon={<CameraIcon fontSize={"large"} />} to={'/camera'} component={Link} />
           ) : null}
-          <Tab icon={<SettingsIcon />} to={'/settings'} component={Link} />
+          <Tab icon={<SettingsIcon fontSize={"large"} />} to={'/settings'} component={Link} />
         </Tabs>
       </div>
     </nav>

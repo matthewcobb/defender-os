@@ -16,19 +16,19 @@ const LoadingVideo: React.FC<LoadingVideoProps> = ({ deviceFound }) => {
 
     // Define the loop video function
     const loopVideo = () => {
-      if (video.currentTime >= 4) {
+      if (video.currentTime > 3) {
         video.currentTime = 0
         video.play()
       }
     }
 
-    loopHandler.current = loopVideo // Store the reference to the loop handler
+    loopHandler.current = loopVideo
     video.addEventListener('timeupdate', loopVideo)
     video.play()
 
     return () => {
       if (loopHandler.current) {
-        video.removeEventListener('timeupdate', loopHandler.current) // Use the same function reference
+        video.removeEventListener('timeupdate', loopHandler.current)
       }
     }
   }, [])
@@ -38,14 +38,15 @@ const LoadingVideo: React.FC<LoadingVideoProps> = ({ deviceFound }) => {
     if (!video || !loopHandler.current) return
 
     if (deviceFound) {
-      video.removeEventListener('timeupdate', loopHandler.current) // Remove the event listener using the same reference
+      video.removeEventListener('timeupdate', loopHandler.current)
     } else {
-      video.addEventListener('timeupdate', loopHandler.current) // Re-add if deviceFound changes back
+      video.addEventListener('timeupdate', loopHandler.current)
     }
   }, [deviceFound])
 
   return (
-    <video ref={videoRef} width="832" height="400" loop muted poster={POSTER_SRC}>
+    <video ref={videoRef} width="832" height="400" muted poster={POSTER_SRC}>
+      <source src={VIDEO_SRC} type="video/mp4" />
       Your browser does not support the video tag.
     </video>
   )
