@@ -1,11 +1,12 @@
-<<<<<<< HEAD
 #directories
 bower_components
 node_modules
 dist
 build
 assets
+out
 .idea
+renogy-bt/__pycache__/
 
 #files
 *.tgz
@@ -13,11 +14,6 @@ assets
 *.apk
 .idea/workspace.xml
 *.xml
-
-=======
-node_modules
-dist
-out
 *.log*
->>>>>>> origin/v4
 *.iso
+*.pyc
