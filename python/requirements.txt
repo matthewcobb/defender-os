@@ -1,7 +1,13 @@
+# setup virtual env
+https://www.raspberrypi.com/documentation/computers/os.html#using-pip-with-virtual-environments
+
+# sudo apt install build-essential libpython3-dev libdbus-1-dev libgirepository1.0-dev
+flask
+gunicorn
 gatt
 configparser
 requests
 paho-mqtt
 dbus-python
-pycairo 
+pycairo
 PyGObject

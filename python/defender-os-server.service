@@ -1,4 +1,4 @@
-# /etc/systemctl/system/defender_os_server.service
+# /etc/systemctl/system/defender-os-server.service
 [Unit]
 Description=Gunicorn instance to serve Flask DefenderOS Server
 After=network.target
@@ -7,7 +7,7 @@ After=network.target
 User=pi
 Group=www-data
 WorkingDirectory=/home/pi/defender-os/python
-ExecStart=gunicorn --workers 3 --bind 0.0.0.0:5000 server:app
+ExecStart=/home/pi/defender-os/python/env/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 server:app
 
 [Install]
 WantedBy=multi-user.target
