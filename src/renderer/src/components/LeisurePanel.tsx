@@ -8,7 +8,7 @@ import axios from 'axios'
 import { CircularProgressBar } from '@tomickigrzegorz/react-circular-progress-bar'
 
 function LeisurePanel() {
-  const API_URL = "http://127.0.0.1:8000"
+  const API_URL = "http://0.0.0.0:5000"
   const [batteryStatus, setBatteryStatus] = useState({})
   const [solarStatus, setSolarStatus] = useState({})
   const [error, setError] = useState('')
