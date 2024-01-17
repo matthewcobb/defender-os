@@ -8,7 +8,8 @@ app = Flask(__name__)
 def fetch_cpu_temp():
   try:
     cpu = CPUTemperature()
-    return {"temp": cpu.temperature}, 200
+    temp = round(cpu.temperature)
+    return {"temp": temp}, 200
   except Exception as e:
     return jsonify({"error": str(e)}), 500
 
