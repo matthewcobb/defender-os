@@ -35,9 +35,8 @@ BATTERY_TYPE = {
 }
 
 class RoverClient(BaseClient):
-    def __init__(self, config, on_data_callback=None):
+    def __init__(self, config):
         super().__init__(config)
-        self.on_data_callback = on_data_callback
         self.data = {}
         self.sections = [
             {'register': 12, 'words': 8, 'parser': self.parse_device_info},
@@ -47,6 +46,7 @@ class RoverClient(BaseClient):
         ]
         self.set_load_params = {'function': 6, 'register': 266}
 
+    # this is overiding the BaseClient if the operation is 6
     def on_data_received(self, response):
         operation = bytes_to_int(response, 1, 1)
         if operation == 6: # write operation
@@ -91,7 +91,7 @@ class RoverClient(BaseClient):
         data['load_voltage'] = bytes_to_int(bs, 11, 2, scale = 0.1)
         data['load_current'] = bytes_to_int(bs, 13, 2, scale = 0.01)
         data['load_power'] = bytes_to_int(bs, 15, 2)
-        data['pv_voltage'] = bytes_to_int(bs, 17, 2, scale = 0.1) 
+        data['pv_voltage'] = bytes_to_int(bs, 17, 2, scale = 0.1)
         data['pv_current'] = bytes_to_int(bs, 19, 2, scale = 0.01)
         data['pv_power'] = bytes_to_int(bs, 21, 2)
         data['max_charging_power_today'] = bytes_to_int(bs, 33, 2)

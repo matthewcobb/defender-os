@@ -1,64 +1,70 @@
-import os
-from threading import Timer
+import asyncio
 import logging
-import configparser
 import time
+from .BLE import BLEDevice
 from .Utils import bytes_to_int, int_to_bytes, crc16_modbus
-from .BLE import DeviceManager, Device
 
-# Base class that works with all Renogy family devices
-# Should be extended by each client with its own parsers and section definitions
-# Section example: {'register': 5000, 'words': 8, 'parser': self.parser_func}
-
-ALIAS_PREFIX = 'BT-TH'
-NOTIFY_CHAR_UUID = "0000fff1-0000-1000-8000-00805f9b34fb"
-WRITE_CHAR_UUID  = "0000ffd1-0000-1000-8000-00805f9b34fb"
-READ_TIMEOUT = 30 # (seconds)
+POLL_INTERVAL = 5 # SECONDS
 
 class BaseClient:
     def __init__(self, config):
-        self.config: configparser.ConfigParser = config
-        self.manager = None
-        self.device = None
-        self.poll_timer = None
-        self.read_timer = None
+        self.initialized = False
+        self.device = BLEDevice(config['mac_address'])
+        self.device_id = config['device_id']
         self.data = {}
-        self.device_id = self.config['device'].getint('device_id')
         self.sections = []
         self.section_index = 0
-        logging.info(f"Init {self.__class__.__name__}: {self.config['device']['alias']} => {self.config['device']['mac_addr']}")
+        self.loop = asyncio.get_event_loop()
 
-    def connect(self):
-        self.manager = DeviceManager(adapter_name=self.config['device']['adapter'], mac_address=self.config['device']['mac_addr'], alias=self.config['device']['alias'])
-        self.manager.discover()
+    async def connect(self):
+        connected = await self.device.discover_and_connect()
+        if not connected:
+            return False
+        await self.device.setup_notifications(self.on_data_received)
 
-        if not self.manager.device_found:
-            logging.error(f"Device not found: {self.config['device']['alias']} => {self.config['device']['mac_addr']}, please check the details provided.")
-            for dev in self.manager.devices():
-                if dev.alias() != None and dev.alias().startswith(ALIAS_PREFIX):
-                    logging.debug(f"Possible device found! ======> {dev.alias()} > [{dev.mac_address}]")
-            self.__stop_service()
+        self.initialized = True
+        return True
 
-        self.device = Device(mac_address=self.config['device']['mac_addr'], manager=self.manager, on_resolved=self.__on_resolved, on_data=self.on_data_received, on_connect_fail=self.__on_connect_fail, notify_uuid=NOTIFY_CHAR_UUID, write_uuid=WRITE_CHAR_UUID)
+    def trigger_read_section(self):
+        logging.info("Requesting data...")
+        if not self.loop.is_running():
+            self.loop.run_until_complete(self.read_section())
+        else:
+            asyncio.run_coroutine_threadsafe(self.read_section(), self.loop)
 
-        try:
-            self.device.connect()
-            self.manager.run()
-        except Exception as e:
-            self.__on_error(True, e)
-        except KeyboardInterrupt:
-            self.__on_error(False, "KeyboardInterrupt")
+    async def read_section(self):
+        if not self.sections:
+            logging.error("No sections to read")
+            return
 
-    def disconnect(self):
-        self.device.disconnect()
-        self.__stop_service()
+        section = self.sections[self.section_index]
+        request = self.create_generic_read_request(
+            self.device_id, 3, section['register'], section['words']
+        )
+        success = await self.device.write_data(request)
+        if not success:
+            logging.error("Read operation failed.")
 
-    def __on_resolved(self):
-        logging.info("resolved services")
-        self.poll_data() if self.config['data'].getboolean('enable_polling') == True else self.read_section()
+    def create_generic_read_request(self, device_id, function, regAddr, readWrd):
+        data = None
+        if regAddr != None and readWrd != None:
+            data = []
+            data.append(device_id)
+            data.append(function)
+            data.append(int_to_bytes(regAddr, 0))
+            data.append(int_to_bytes(regAddr, 1))
+            data.append(int_to_bytes(readWrd, 0))
+            data.append(int_to_bytes(readWrd, 1))
 
+            crc = crc16_modbus(bytes(data))
+            data.append(crc[0])
+            data.append(crc[1])
+            logging.debug("{} {} => {}".format("create_request_payload", regAddr, data))
+        return data
+
+    # BaseClient handles read operation
+    # SubClasses handle write
     def on_data_received(self, response):
-        self.read_timer.cancel()
         operation = bytes_to_int(response, 1, 1)
 
         if operation == 3: # read operation
@@ -76,65 +82,12 @@ class BaseClient:
             else:
                 self.section_index += 1
                 time.sleep(0.5)
-                self.read_section()
+                asyncio.create_task(self.read_section())
         else:
             logging.warn("on_data_received: unknown operation={}".format(operation))
 
-    def on_read_operation_complete(self):
-        logging.info("on_read_operation_complete")
-        self.data['__device'] = self.config['device']['alias']
-        self.data['__client'] = self.__class__.__name__
-        if self.on_data_callback is not None:
-            self.on_data_callback(self, self.data)
+    async def on_disconnect(self):
+        await self.device.disconnect()
+        self.initialized = False
 
-    def on_read_timeout(self):
-        logging.error("on_read_timeout => please check your device_id!")
-        self.disconnect()
 
-    def poll_data(self):
-        self.read_section()
-        if self.poll_timer is not None and self.poll_timer.is_alive():
-            self.poll_timer.cancel()
-        self.poll_timer = Timer(self.config['data'].getint('poll_interval'), self.poll_data)
-        self.poll_timer.start()
-
-    def read_section(self):
-        index = self.section_index
-        if self.device_id == None or len(self.sections) == 0:
-            return logging.error("base client cannot be used directly")
-        request = self.create_generic_read_request(self.device_id, 3, self.sections[index]['register'], self.sections[index]['words']) 
-        self.device.characteristic_write_value(request)
-        self.read_timer = Timer(READ_TIMEOUT, self.on_read_timeout)
-        self.read_timer.start()
-
-    def create_generic_read_request(self, device_id, function, regAddr, readWrd):                             
-        data = None                                
-        if regAddr != None and readWrd != None:
-            data = []
-            data.append(device_id)
-            data.append(function)
-            data.append(int_to_bytes(regAddr, 0))
-            data.append(int_to_bytes(regAddr, 1))
-            data.append(int_to_bytes(readWrd, 0))
-            data.append(int_to_bytes(readWrd, 1))
-
-            crc = crc16_modbus(bytes(data))
-            data.append(crc[0])
-            data.append(crc[1])
-            logging.debug("{} {} => {}".format("create_request_payload", regAddr, data))
-        return data
-
-    def __on_error(self, connectFailed = False, error = None):
-        logging.error(f"Exception occured: {error}")
-        self.__stop_service() if connectFailed else self.disconnect()
-
-    def __on_connect_fail(self, error):
-        logging.error(f"Connection failed: {error}")
-        self.__stop_service()
-
-    def __stop_service(self):
-        if self.poll_timer is not None and self.poll_timer.is_alive():
-            self.poll_timer.cancel()
-        if self.poll_timer is not None: self.read_timer.cancel()
-        self.manager.stop()
-        os._exit(os.EX_OK)
