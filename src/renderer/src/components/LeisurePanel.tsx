@@ -38,7 +38,7 @@ function LeisurePanel() {
 
     const interval = setInterval(() => {
       fetchStatus()
-    }, 3000) // Fetches every 3 seconds
+    }, 10000) // Fetches every 3 seconds
 
     return () => clearInterval(interval) // Cleanup interval on component unmount
   }, [])
