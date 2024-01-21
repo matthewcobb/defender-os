@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
+/*
+DCDC Response
+{'function': 'READ', 'model': 'RBC50D1S-G1', 'device_id': 96, 'battery_percentage': 99, 'battery_voltage': 13.2, 'battery_current': 0.13, 'battery_temperature': 25, 'controller_temperature': 17, 'load_status': 'off', 'load_voltage': 12.5, 'load_current': 0.0, 'load_power': 0, 'pv_voltage': 14.0, 'pv_current': 0.02, 'pv_power': 2, 'max_charging_power_today': 17, 'max_discharging_power_today': 0, 'charging_amp_hours_today': 3, 'discharging_amp_hours_today': 0, 'power_generation_today': 40, 'power_consumption_today': 0, 'power_generation_total': 39610, 'charging_status': 'mppt', 'battery_type': 'lithium'}
+*/
+
+/*
+Battery Response
+{'function': 'READ', 'cell_count': 4, 'cell_voltage_0': 3.3, 'cell_voltage_1': 3.3, 'cell_voltage_2': 3.3, 'cell_voltage_3': 3.3, 'sensor_count': 4, 'temperature_0': 12.0, 'temperature_1': 12.0, 'temperature_2': 12.0, 'temperature_3': 12.0, 'current': 0.0, 'voltage': 13.2, 'remaining_charge': 92.53, 'capacity': 99.99, 'model': 'RBT100LFP12S-G', 'device_id': 247}
+*/
+
 // import Battery20Icon from '@mui/icons-material/Battery20'
 // import AccessTimeIcon from '@mui/icons-material/AccessTime'
 // import BoltIcon from '@mui/icons-material/Bolt'
@@ -10,7 +20,7 @@ import { CircularProgressBar } from '@tomickigrzegorz/react-circular-progress-ba
 function LeisurePanel() {
   const API_URL = "http://0.0.0.0:5000"
   const [batteryStatus, setBatteryStatus] = useState({})
-  const [solarStatus, setSolarStatus] = useState({})
+  const [dcdcStatus, setDcdcStatus] = useState({})
   const [error, setError] = useState('')
 
   const fetchStatus = async () => {
@@ -21,11 +31,11 @@ function LeisurePanel() {
       }
       setBatteryStatus(batteryResponse.data)
 
-      const solarResponse = await axios.get(API_URL + '/solar_status')
-      if (solarResponse.data.error) {
-        throw new Error(solarResponse.data.error)
+      const dcdcResponse = await axios.get(API_URL + '/dcdc_status')
+      if (dcdcResponse.data.error) {
+        throw new Error(dcdcResponse.data.error)
       }
-      setSolarStatus(solarResponse.data)
+      setDcdcStatus(dcdcResponse.data)
 
       setError('')
     } catch (err) {
@@ -53,7 +63,7 @@ function LeisurePanel() {
             <div className="cell-shrink">
               <div className="p-relative">
                 <CircularProgressBar
-                  percent={batteryStatus.level}
+                  percent={batteryStatus['remaining_charge']}
                   linearGradient={['#94EB9D', '#6EF3EE']}
                   size={104}
                   colorCircle="#1A1D1B"
@@ -70,12 +80,12 @@ function LeisurePanel() {
             <div className="cell">
               <p className="text-secondary">Time remaining</p>
               <div className="grid grid-middle mb-05">
-                <h2>14hr 34m</h2>
+                <h2>{batteryStatus}</h2>
               </div>
 
               <p className="text-secondary">Output</p>
               <div className="grid grid-middle mb-05">
-                <h2>{solarStatus.output}</h2>
+                <h2>{dcdcStatus['load_power']}w</h2>
               </div>
             </div>
           </div>
