@@ -1,13 +1,17 @@
 from flask import Flask, jsonify
 from gpiozero import CPUTemperature
 import time
+import signal
+import asyncio
+import sys
 import logging
 from renogybt import RoverClient, BatteryClient
+from threading import Thread
 
 RETRY_DELAY = 5
 
 # Logging INFO level
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Start the BLE clients
 def create_ble_client(config):
@@ -20,7 +24,7 @@ def create_ble_client(config):
 
 dcdc_config =  {
     'type': 'RNG_CTRL',
-    'mac_address': '7BD4C7F0-B018-68EA-BBAD-7D21D527310D',
+    'mac_address': 'FC:A8:9B:26:D2:DC',
     'name': 'BT-TH-9B26D2DC',
     'device_id': 255
 }
@@ -38,15 +42,29 @@ def fetch_cpu_temp():
         return jsonify({"error": str(e)}), 500
 
 def fetch_battery_status():
-    if dcdc_client.initialized:
+    if dcdc_client.data:
         try:
-            dcdc_client.trigger_read_section()
             return jsonify({dcdc_client.data}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     else:
-        dcdc_client.loop.run_until_complete(dcdc_client.connect())
         return jsonify({"error": "RenogyBT not connected!"}), 500
+
+def start_ble_client():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(dcdc_client.connect())
+    loop.run_forever()
+
+thread = Thread(target=start_ble_client)
+thread.start()
+
+def fetch_battery_status():
+    try:
+        #fetch_battery_status()
+        return {"status": "Active", "output": "5.2kW"}, 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def fetch_solar_status():
     try:
@@ -67,3 +85,4 @@ def battery_status():
 @app.route('/solar_status', methods=['GET'])
 def solar_status():
     return fetch_solar_status()
+
