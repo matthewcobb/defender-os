@@ -18,7 +18,10 @@ battery_config =  {
 }
 
 # Logging INFO level
+# Configure Quart logging
 logging.basicConfig(level=logging.INFO)
+log = logging.getLogger('quart.app')
+log.setLevel(logging.INFO)
 
 # Create clients
 dcdc_client = RoverClient(dcdc_config)
