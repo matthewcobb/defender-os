@@ -4,7 +4,7 @@ import StarterPanel from './StarterPanel'
 
 function Home() {
   return (
-    <div class="fade-in-fast">
+    <div className="fade-in-fast">
       <LeisurePanel />
       <div className="grid">
         <div className="cell">

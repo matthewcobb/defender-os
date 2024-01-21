@@ -18,7 +18,7 @@ Battery Response
 import { CircularProgressBar } from '@tomickigrzegorz/react-circular-progress-bar'
 
 function LeisurePanel() {
-  const API_URL = "http://0.0.0.0:5000"
+  const API_URL = 'http://0.0.0.0:5000'
   const [batteryStatus, setBatteryStatus] = useState({})
   const [dcdcStatus, setDcdcStatus] = useState({})
   const [error, setError] = useState('')
@@ -63,7 +63,7 @@ function LeisurePanel() {
             <div className="cell-shrink">
               <div className="p-relative">
                 <CircularProgressBar
-                  percent={batteryStatus['remaining_charge']}
+                  percent={batteryStatus['remaining_charge'] || 0}
                   linearGradient={['#94EB9D', '#6EF3EE']}
                   size={104}
                   colorCircle="#1A1D1B"
@@ -80,7 +80,7 @@ function LeisurePanel() {
             <div className="cell">
               <p className="text-secondary">Time remaining</p>
               <div className="grid grid-middle mb-05">
-                <h2>{batteryStatus}</h2>
+                <h2>{batteryStatus[1]}</h2>
               </div>
 
               <p className="text-secondary">Output</p>
