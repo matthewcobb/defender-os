@@ -5,7 +5,8 @@ dist
 build
 out
 .idea
-renogy-bt/__pycache__/
+python/__pycache__
+python/env
 
 #files
 *.tgz
@@ -16,3 +17,4 @@ renogy-bt/__pycache__/
 *.log*
 *.iso
 *.pyc
+
