@@ -49,7 +49,7 @@ class RoverClient(BaseClient):
     # this is overiding the BaseClient if the operation is 6
     async def on_data_received(self, sender, response):
         operation = bytes_to_int(response, 1, 1)
-        logging.info(f"Read operation is {operation}")
+        logging.debug(f"Read operation is {operation}")
         if operation == 6: # write operation
             self.parse_set_load_response(response)
             self.on_write_operation_complete()
@@ -70,20 +70,20 @@ class RoverClient(BaseClient):
         self.device.characteristic_write_value(request)
 
     def parse_device_info(self, bs):
-        logging.info("PARSE DEVICE INFO")
+        logging.debug("PARSE DEVICE INFO")
         data = {}
         data['function'] = FUNCTION.get(bytes_to_int(bs, 1, 1))
         data['model'] = (bs[3:17]).decode('utf-8').strip()
         self.data.update(data)
 
     def parse_device_address(self, bs):
-        logging.info("PARSE DEVICE ADDRESS")
+        logging.debug("PARSE DEVICE ADDRESS")
         data = {}
         data['device_id'] = bytes_to_int(bs, 4, 1)
         self.data.update(data)
 
     def parse_chargin_info(self, bs):
-        logging.info("PARSE CHARGIN INFO")
+        logging.debug("PARSE CHARGIN INFO")
         data = {}
         temp_unit = 'C'
         data['function'] = FUNCTION.get(bytes_to_int(bs, 1, 1))
@@ -110,6 +110,7 @@ class RoverClient(BaseClient):
         self.data.update(data)
 
     def parse_battery_type(self, bs):
+        logging.debug("PARSE BATTERY TYPE")
         data = {}
         data['function'] = FUNCTION.get(bytes_to_int(bs, 1, 1))
         data['battery_type'] = BATTERY_TYPE.get(bytes_to_int(bs, 3, 2))

@@ -1,26 +1,7 @@
-from flask import Flask, jsonify
-from gpiozero import CPUTemperature
-import time
-import signal
-import asyncio
-import sys
+from quart import Quart, jsonify
 import logging
-from renogybt import RoverClient, BatteryClient
-from threading import Thread
-
-RETRY_DELAY = 5
-
-# Logging INFO level
-logging.basicConfig(level=logging.DEBUG)
-
-# Start the BLE clients
-def create_ble_client(config):
-    logging.info("Initializing BLE client...")
-    if config['type'] == 'RNG_CTRL':
-        client = RoverClient(config)
-    elif config['type'] == 'RNG_BATT':
-        client = BatteryClient(config)
-    return client
+from gpiozero import CPUTemperature
+from renogybt import RoverClient, BatteryClient  # Assuming these are in renogybt.py
 
 dcdc_config =  {
     'type': 'RNG_CTRL',
@@ -28,12 +9,52 @@ dcdc_config =  {
     'name': 'BT-TH-9B26D2DC',
     'device_id': 255
 }
-dcdc_client = create_ble_client(dcdc_config)
 
-# Routes
-app = Flask(__name__)
+battery_config =  {
+    'type': 'RNG_BATT',
+    'mac_address': 'AC:4D:16:19:14:1A',
+    'name': 'BT-TH-9B26D2DC',
+    'device_id': 255
+}
 
-def fetch_cpu_temp():
+# Logging INFO level
+logging.basicConfig(level=logging.INFO)
+
+# Create clients
+dcdc_client = RoverClient(dcdc_config)
+battery_client = BatteryClient(battery_config)
+
+# Flask
+app = Quart(__name__)
+
+@app.before_serving
+async def before_serving():
+    await dcdc_client.start()
+    await battery_client.start()
+
+def fetch_dcdc_status():
+    if dcdc_client.latest_data:
+        return jsonify(dcdc_client.latest_data), 200
+    else:
+        return jsonify({"error": "RenogyBT not connected!"}), 500
+
+def fetch_battery_status():
+    if battery_client.latest_data:
+        return jsonify(battery_client.latest_data), 200
+    else:
+        return jsonify({"error": "RenogyBT not connected!"}), 500
+
+@app.route('/dcdc_status', methods=['GET'])
+async def dcdc_status():
+    return fetch_dcdc_status()
+
+@app.route('/battery_status', methods=['GET'])
+async def battery_status():
+    return fetch_battery_status()
+
+# CPU Temp
+@app.route('/cpu_temp', methods=['GET'])
+def cpu_temp():
     try:
         cpu = CPUTemperature()
         temp = round(cpu.temperature)
@@ -41,48 +62,5 @@ def fetch_cpu_temp():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def fetch_battery_status():
-    if dcdc_client.data:
-        try:
-            return jsonify({dcdc_client.data}), 200
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-    else:
-        return jsonify({"error": "RenogyBT not connected!"}), 500
-
-def start_ble_client():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(dcdc_client.connect())
-    loop.run_forever()
-
-thread = Thread(target=start_ble_client)
-thread.start()
-
-def fetch_battery_status():
-    try:
-        #fetch_battery_status()
-        return {"status": "Active", "output": "5.2kW"}, 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-def fetch_solar_status():
-    try:
-        # Your solar status fetching logic
-        return {"status": "Active", "output": "5.2kW"}, 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# Routes
-@app.route('/cpu_temp', methods=['GET'])
-def cpu_temp():
-    return fetch_cpu_temp()
-
-@app.route('/battery_status', methods=['GET'])
-def battery_status():
-    return fetch_battery_status()
-
-@app.route('/solar_status', methods=['GET'])
-def solar_status():
-    return fetch_solar_status()
-
+if __name__ == '__main__':
+    app.run(debug=True)
