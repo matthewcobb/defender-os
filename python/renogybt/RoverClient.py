@@ -47,18 +47,20 @@ class RoverClient(BaseClient):
         self.set_load_params = {'function': 6, 'register': 266}
 
     # this is overiding the BaseClient if the operation is 6
-    def on_data_received(self, response):
+    async def on_data_received(self, sender, response):
         operation = bytes_to_int(response, 1, 1)
+        logging.info(f"Read operation is {operation}")
         if operation == 6: # write operation
             self.parse_set_load_response(response)
             self.on_write_operation_complete()
             self.data = {}
         else:
             # read is handled in base class
-            super().on_data_received(response)
+            await super().on_data_received(sender, response)
 
     def on_write_operation_complete(self):
         logging.info("on_write_operation_complete")
+        logging.info(self.data)
         if self.on_data_callback is not None:
             self.on_data_callback(self, self.data)
 
@@ -68,19 +70,22 @@ class RoverClient(BaseClient):
         self.device.characteristic_write_value(request)
 
     def parse_device_info(self, bs):
+        logging.info("PARSE DEVICE INFO")
         data = {}
         data['function'] = FUNCTION.get(bytes_to_int(bs, 1, 1))
         data['model'] = (bs[3:17]).decode('utf-8').strip()
         self.data.update(data)
 
     def parse_device_address(self, bs):
+        logging.info("PARSE DEVICE ADDRESS")
         data = {}
         data['device_id'] = bytes_to_int(bs, 4, 1)
         self.data.update(data)
 
     def parse_chargin_info(self, bs):
+        logging.info("PARSE CHARGIN INFO")
         data = {}
-        temp_unit = self.config['data']['temperature_unit']
+        temp_unit = 'C'
         data['function'] = FUNCTION.get(bytes_to_int(bs, 1, 1))
         data['battery_percentage'] = bytes_to_int(bs, 3, 2)
         data['battery_voltage'] = bytes_to_int(bs, 5, 2, scale = 0.1)
