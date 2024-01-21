@@ -3,7 +3,6 @@ bower_components
 node_modules
 dist
 build
-assets
 out
 .idea
 python/__pycache__
@@ -18,4 +17,4 @@ python/env
 *.log*
 *.iso
 *.pyc
-
+*.DS_store
