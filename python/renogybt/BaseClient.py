@@ -4,7 +4,7 @@ import time
 from .BLE import BLEDevice
 from .Utils import bytes_to_int, int_to_bytes, crc16_modbus
 
-POLL_INTERVAL = 5
+POLL_INTERVAL = 20
 
 class BaseClient:
     def __init__(self, config):
