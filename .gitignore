@@ -17,4 +17,4 @@ python/env
 *.log*
 *.iso
 *.pyc
-
+*.DS_store
