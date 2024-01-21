@@ -13,6 +13,9 @@ class BLEDevice:
         self.device = None
         self.write_characteristic = None
 
+    async def initialize(self):
+        asyncio.create_task(self.create_and_maintain_connection())
+
     async def discover_and_connect(self):
         logging.info(f"🔭 Looking for {self.mac_address}...")
         device = await BleakScanner.find_device_by_address(self.mac_address, timeout=DISCOVERY_TIMEOUT)
@@ -27,7 +30,15 @@ class BLEDevice:
             return True
         except Exception as e:
             logging.error(f"Connection failed: {e}")
+            self.device = None
             return False
+
+    async def create_and_maintain_connection(self):
+        while True:
+            if not self.device or not self.device.is_connected:
+                logging.info(f"Trying to reconnect to {self.mac_address}")
+                await self.discover_and_connect()
+            await asyncio.sleep(5) # RETRY INTERVAL
 
     async def setup_notifications(self, on_data_received):
         for service in self.device.services:
@@ -45,7 +56,7 @@ class BLEDevice:
             return False
         try:
             await self.device.write_gatt_char(self.write_characteristic.uuid, data)
-            logging.info("Write request sent.")
+            logging.debug("Write request sent.")
             return True
         except Exception as e:
             logging.error(f"Failed to write characteristic: {e}")
