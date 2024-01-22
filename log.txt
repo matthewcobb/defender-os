@@ -1,0 +1,33 @@
+(electron:10102): dbind-WARNING **: 13:32:39.819: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+(node:10102) UnhandledPromiseRejectionWarning: TypeError: electron.systemPreferences.askForMediaAccess is not a function
+    at createWindow (/home/pi/defender-os/out/main/index.js:316:30)
+    at /home/pi/defender-os/out/main/index.js:342:3
+(Use `electron --trace-warnings ...` to show where the warning was created)
+(node:10102) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 1)
+[10161:0122/133240.294630:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.294785:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.294863:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.294937:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.295100:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.295178:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.295248:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.296843:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.296944:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.297039:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.297110:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.297176:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.297255:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133240.297323:ERROR:gbm_wrapper.cc(253)] Failed to export buffer to dma_buf: No such file or directory (2)
+[10161:0122/133254.256614:ERROR:gl_surface_presentation_helper.cc(260)] GetVSyncParametersIfAvailable() failed for 1 times!
+[10161:0122/133257.260835:ERROR:gl_surface_presentation_helper.cc(260)] GetVSyncParametersIfAvailable() failed for 2 times!
+[10161:0122/133300.256315:ERROR:gl_surface_presentation_helper.cc(260)] GetVSyncParametersIfAvailable() failed for 3 times!
+Warning: vkCreateInstance: Found no drivers!
+Warning: vkCreateInstance failed with VK_ERROR_INCOMPATIBLE_DRIVER
+    at CheckVkSuccessImpl (../../third_party/dawn/src/dawn/native/vulkan/VulkanError.cpp:88)
+    at CreateVkInstance (../../third_party/dawn/src/dawn/native/vulkan/BackendVk.cpp:458)
+    at Initialize (../../third_party/dawn/src/dawn/native/vulkan/BackendVk.cpp:344)
+    at Create (../../third_party/dawn/src/dawn/native/vulkan/BackendVk.cpp:266)
+    at operator() (../../third_party/dawn/src/dawn/native/vulkan/BackendVk.cpp:521)
+
+Warning: eglChooseConfig returned zero configs
+    at Create (../../third_party/dawn/src/dawn/native/opengl/ContextEGL.cpp:52)
