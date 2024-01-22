@@ -7,7 +7,7 @@ After=network.target
 User=pi
 Group=www-data
 WorkingDirectory=/home/pi/defender-os/python
-ExecStart=/home/pi/defender-os/python/env/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 server:app
+ExecStart=/home/pi/defender-os/python/env/bin/gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:5000 server:app --log-level debug --access-logfile -
 
 [Install]
 WantedBy=multi-user.target

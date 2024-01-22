@@ -1,7 +1,7 @@
 from quart import Quart, jsonify
 import logging
 from gpiozero import CPUTemperature
-from renogybt import RoverClient, BatteryClient  # Assuming these are in renogybt.py
+from renogybt import RoverClient, BatteryClient, LipoModel
 
 dcdc_config =  {
     'type': 'RNG_CTRL',
@@ -32,28 +32,31 @@ app = Quart(__name__)
 
 @app.before_serving
 async def before_serving():
-    await dcdc_client.start()
-    await battery_client.start()
+    await dcdc_client.connect()
+    await battery_client.connect()
 
-def fetch_dcdc_status():
-    if dcdc_client.latest_data:
-        return jsonify(dcdc_client.latest_data), 200
+async def fetch_renogy_data():
+    await dcdc_client.connect()
+    await battery_client.connect()
+
+    if not dcdc_client.is_connected or not battery_client.is_connected:
+        return jsonify({"error": "RenogyBT not connected"}), 500
+
+    # Compile data request
+    if dcdc_client.latest_data and battery_client.latest_data:
+        try:
+            data = LipoModel(dcdc_client.latest_data, battery_client.latest_data).calculate
+            return jsonify(data), 200
+        except Exception as e:
+            logging.error(e)
+            return jsonify({"error": e}), 500
     else:
-        return jsonify({"error": "RenogyBT not connected!"}), 500
+        return jsonify({"error": "No data found!"}), 500
 
-def fetch_battery_status():
-    if battery_client.latest_data:
-        return jsonify(battery_client.latest_data), 200
-    else:
-        return jsonify({"error": "RenogyBT not connected!"}), 500
 
-@app.route('/dcdc_status', methods=['GET'])
+@app.route('/renogy_data', methods=['GET'])
 async def dcdc_status():
-    return fetch_dcdc_status()
-
-@app.route('/battery_status', methods=['GET'])
-async def battery_status():
-    return fetch_battery_status()
+    return await fetch_renogy_data()
 
 # CPU Temp
 @app.route('/cpu_temp', methods=['GET'])

@@ -1,6 +1,6 @@
 import ElectricCarIcon from '@mui/icons-material/ElectricCar'
 
-function StarterPanel() {
+function StarterPanel({ data }) {
   return (
     <div className="panel mb-1">
       <p className="grid">
