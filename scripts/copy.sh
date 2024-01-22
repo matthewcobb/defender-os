@@ -29,15 +29,15 @@ fi
 # Make executable
 chmod +x ./dist/$SRC
 echo "✅ Release made executable."
-echo "🤖 Sending to Pi..."
+echo "🤖 Sending to SSD..."
 
-if [ -d /Volumes/pi/ ]; then
+if [ -d /Volumes/Extreme\ SSD/ ]; then
   # Copy to pi
-  cp -R ./dist/$SRC /Volumes/pi/
+  cp -R ./dist/$SRC /Volumes/Extreme\ SSD/
   echo "✅ Sent."
 
     # Rename on pi
-  mv /Volumes/pi/$SRC /Volumes/pi/$NEWNAME
+  mv /Volumes/Extreme\ SSD/$SRC /Volumes/Extreme\ SSD/$NEWNAME
   echo "✅ v$VERSION sent to Pi!"
 else
   echo "🛑 Unable to connect to Pi, directory not found."
