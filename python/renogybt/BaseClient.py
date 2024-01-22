@@ -1,44 +1,54 @@
 import asyncio
 import logging
-import time
-from .BLE import BLEDevice
+from .BleManager import BleManager
 from .Utils import bytes_to_int, int_to_bytes, crc16_modbus
 
-POLL_INTERVAL = 20
+POLL_INTERVAL = 5
 
 class BaseClient:
     def __init__(self, config):
-        self.device = BLEDevice(config['mac_address'])
+        self.ble_manager = BleManager(config['mac_address'])
+        self.mac_address = config['mac_address']
         self.device_id = config['device_id']
+        self.poll_task = None
         self.latest_data = {}
         self.data = {}
         self.sections = []
         self.section_index = 0
-        self.is_running = False
+        self.connect_lock = asyncio.Lock()
+        self.is_connected = False
         self.is_reading = False
 
-    async def start(self):
-        await self.connect()
-        self.is_running = True
-        asyncio.create_task(self.poll_data())
-
     async def connect(self):
-        try:
-            connected = await self.device.discover_and_connect()
-            if not connected:
-                return False
-            await self.device.setup_notifications(self.on_data_received)
-            await asyncio.sleep(1)
-        except Exception as e:
-            await self.stop_service(e)
-        except KeyboardInterrupt:
-            await self.stop_service('Keyboard Interrupt')
+        async with self.connect_lock:
+            if not self.is_connected:
+                try:
+                    await self.ble_manager.discover_and_connect()
+                    await self.ble_manager.setup_notifications(self.on_data_received)
+                    await asyncio.sleep(1) # Give time for connection to settle
+                    await self.start_polling()
+                    self.is_connected = True
+                except Exception as e:
+                    logging.error(e)
+                    await self.stop_service()
 
     async def poll_data(self):
-        while self.is_running:
+        while self.ble_manager.device.is_connected:
             if not self.is_reading:
                 await self.read_section()
             await asyncio.sleep(POLL_INTERVAL)
+        else:
+            await self.stop_service()
+
+    async def start_polling(self):
+        self.poll_task = asyncio.create_task(self.poll_data())
+        logging.info(f"✅ Polling started for {self.mac_address}")
+
+    async def stop_polling(self):
+        # Check if polling was started or not
+        if self.poll_task != None:
+            self.poll_task.cancel()
+            logging.info(f"Polling cancelled for {self.mac_address}")
 
     async def read_section(self):
         self.is_reading = True
@@ -48,7 +58,7 @@ class BaseClient:
         section = self.sections[self.section_index]
         logging.debug(f"🤖 Testing section {section['parser']}")
         request = self.create_generic_read_request(self.device_id, 3, section['register'], section['words'])
-        success = await self.device.write_data(request)
+        success = await self.ble_manager.write_data(request)
         if not success:
             logging.error("Read operation failed.")
 
@@ -100,13 +110,19 @@ class BaseClient:
 
     def on_read_operation_complete(self):
         logging.debug("on_read_operation_complete!")
-        # Replace the latest data before its reset
-        self.latest_data = self.data
+        self.latest_data = self.data # Replace the latest data before its reset
+        self.is_reading = False # Free up thread
         logging.info(self.latest_data)
-        # Free up thread
-        self.is_reading = False
 
     async def stop_service(self):
-        logging.info(f"Disconnecting from {self.device}")
-        await self.device.disconnect()
-        self.is_running = False
+        logging.info(f"🤖 Cleaning up {self.mac_address} client...")
+        await self.stop_polling()
+        # If terminated by another action
+        if self.ble_manager.device and self.ble_manager.device.is_connected:
+            try:
+                await self.ble_manager.disconnect()
+            except Exception as e:
+                logging.error(e)
+        self.is_connected = False
+        logging.info(f"👋 {self.mac_address} client closed.")
+
