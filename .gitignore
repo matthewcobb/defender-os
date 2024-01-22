@@ -3,7 +3,6 @@ bower_components
 node_modules
 dist
 build
-assets
 out
 .idea
 renogy-bt/__pycache__/
