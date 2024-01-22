@@ -112,7 +112,7 @@ class BaseClient:
         logging.debug("on_read_operation_complete!")
         self.latest_data = self.data # Replace the latest data before its reset
         self.is_reading = False # Free up thread
-        logging.info(self.latest_data)
+        logging.debug(self.latest_data)
 
     async def stop_service(self):
         logging.info(f"🤖 Cleaning up {self.mac_address} client...")

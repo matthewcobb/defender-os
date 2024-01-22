@@ -45,8 +45,9 @@ async def fetch_renogy_data():
     # Compile data request
     if dcdc_client.latest_data and battery_client.latest_data:
         try:
-            data = LipoModel(dcdc_client.latest_data, battery_client.latest_data).calculate
-            return jsonify(data), 200
+            data = LipoModel(dcdc_client.latest_data, battery_client.latest_data).calculate()
+            logging.info(data)
+            return data, 200
         except Exception as e:
             logging.error(e)
             return jsonify({"error": e}), 500

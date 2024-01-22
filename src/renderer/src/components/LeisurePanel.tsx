@@ -28,14 +28,14 @@ function LeisurePanel({ data }) {
               <div>
                 <p className="text-secondary">Fully charged in</p>
                 <div className="grid grid-middle mb-05">
-                  <h2></h2>
+                  <h2>{data['time_remaining_to_charge']}</h2>
                 </div>
               </div>
             ) : (
               <div>
                 <p className="text-secondary">Time remaining</p>
                 <div className="grid grid-middle mb-05">
-                  <h2></h2>
+                  <h2>{data['time_remaining_to_empty']}</h2>
                 </div>
 
                 <p className="text-secondary">Output</p>
