@@ -1,114 +1,69 @@
-import os
-from threading import Timer
+import asyncio
 import logging
-import configparser
-import time
+from .BleManager import BleManager
 from .Utils import bytes_to_int, int_to_bytes, crc16_modbus
-from .BLE import DeviceManager, Device
 
-# Base class that works with all Renogy family devices
-# Should be extended by each client with its own parsers and section definitions
-# Section example: {'register': 5000, 'words': 8, 'parser': self.parser_func}
-
-ALIAS_PREFIX = 'BT-TH'
-NOTIFY_CHAR_UUID = "0000fff1-0000-1000-8000-00805f9b34fb"
-WRITE_CHAR_UUID  = "0000ffd1-0000-1000-8000-00805f9b34fb"
-READ_TIMEOUT = 30 # (seconds)
+POLL_INTERVAL = 5
 
 class BaseClient:
     def __init__(self, config):
-        self.config: configparser.ConfigParser = config
-        self.manager = None
-        self.device = None
-        self.poll_timer = None
-        self.read_timer = None
+        self.ble_manager = BleManager(config['mac_address'])
+        self.mac_address = config['mac_address']
+        self.device_id = config['device_id']
+        self.poll_task = None
+        self.latest_data = {}
         self.data = {}
-        self.device_id = self.config['device'].getint('device_id')
         self.sections = []
         self.section_index = 0
-        logging.info(f"Init {self.__class__.__name__}: {self.config['device']['alias']} => {self.config['device']['mac_addr']}")
+        self.connect_lock = asyncio.Lock()
+        self.is_connected = False
+        self.is_reading = False
 
-    def connect(self):
-        self.manager = DeviceManager(adapter_name=self.config['device']['adapter'], mac_address=self.config['device']['mac_addr'], alias=self.config['device']['alias'])
-        self.manager.discover()
+    async def connect(self):
+        async with self.connect_lock:
+            if not self.is_connected:
+                try:
+                    await self.ble_manager.discover_and_connect()
+                    await self.ble_manager.setup_notifications(self.on_data_received)
+                    await asyncio.sleep(1) # Give time for connection to settle
+                    await self.start_polling()
+                    self.is_connected = True
+                except Exception as e:
+                    logging.error(e)
+                    await self.stop_service()
 
-        if not self.manager.device_found:
-            logging.error(f"Device not found: {self.config['device']['alias']} => {self.config['device']['mac_addr']}, please check the details provided.")
-            for dev in self.manager.devices():
-                if dev.alias() != None and dev.alias().startswith(ALIAS_PREFIX):
-                    logging.debug(f"Possible device found! ======> {dev.alias()} > [{dev.mac_address}]")
-            self.__stop_service()
-
-        self.device = Device(mac_address=self.config['device']['mac_addr'], manager=self.manager, on_resolved=self.__on_resolved, on_data=self.on_data_received, on_connect_fail=self.__on_connect_fail, notify_uuid=NOTIFY_CHAR_UUID, write_uuid=WRITE_CHAR_UUID)
-
-        try:
-            self.device.connect()
-            self.manager.run()
-        except Exception as e:
-            self.__on_error(True, e)
-        except KeyboardInterrupt:
-            self.__on_error(False, "KeyboardInterrupt")
-
-    def disconnect(self):
-        self.device.disconnect()
-        self.__stop_service()
-
-    def __on_resolved(self):
-        logging.info("resolved services")
-        self.poll_data() if self.config['data'].getboolean('enable_polling') == True else self.read_section()
-
-    def on_data_received(self, response):
-        self.read_timer.cancel()
-        operation = bytes_to_int(response, 1, 1)
-
-        if operation == 3: # read operation
-            logging.info("on_data_received: response for read operation")
-            if (self.section_index < len(self.sections) and
-                self.sections[self.section_index]['parser'] != None and
-                self.sections[self.section_index]['words'] * 2 + 5 == len(response)):
-                # parse and update data
-                self.sections[self.section_index]['parser'](response)
-
-            if self.section_index >= len(self.sections) - 1: # last section, read complete
-                self.section_index = 0
-                self.on_read_operation_complete()
-                self.data = {}
-            else:
-                self.section_index += 1
-                time.sleep(0.5)
-                self.read_section()
+    async def poll_data(self):
+        while self.ble_manager.device.is_connected:
+            if not self.is_reading:
+                await self.read_section()
+            await asyncio.sleep(POLL_INTERVAL)
         else:
-            logging.warn("on_data_received: unknown operation={}".format(operation))
+            await self.stop_service()
 
-    def on_read_operation_complete(self):
-        logging.info("on_read_operation_complete")
-        self.data['__device'] = self.config['device']['alias']
-        self.data['__client'] = self.__class__.__name__
-        if self.on_data_callback is not None:
-            self.on_data_callback(self, self.data)
+    async def start_polling(self):
+        self.poll_task = asyncio.create_task(self.poll_data())
+        logging.info(f"✅ Polling started for {self.mac_address}")
 
-    def on_read_timeout(self):
-        logging.error("on_read_timeout => please check your device_id!")
-        self.disconnect()
+    async def stop_polling(self):
+        # Check if polling was started or not
+        if self.poll_task != None:
+            self.poll_task.cancel()
+            logging.info(f"Polling cancelled for {self.mac_address}")
 
-    def poll_data(self):
-        self.read_section()
-        if self.poll_timer is not None and self.poll_timer.is_alive():
-            self.poll_timer.cancel()
-        self.poll_timer = Timer(self.config['data'].getint('poll_interval'), self.poll_data)
-        self.poll_timer.start()
+    async def read_section(self):
+        self.is_reading = True
+        if not self.sections:
+            logging.error("No sections to read")
+            return
+        section = self.sections[self.section_index]
+        logging.debug(f"🤖 Testing section {section['parser']}")
+        request = self.create_generic_read_request(self.device_id, 3, section['register'], section['words'])
+        success = await self.ble_manager.write_data(request)
+        if not success:
+            logging.error("Read operation failed.")
 
-    def read_section(self):
-        index = self.section_index
-        if self.device_id == None or len(self.sections) == 0:
-            return logging.error("base client cannot be used directly")
-        request = self.create_generic_read_request(self.device_id, 3, self.sections[index]['register'], self.sections[index]['words']) 
-        self.device.characteristic_write_value(request)
-        self.read_timer = Timer(READ_TIMEOUT, self.on_read_timeout)
-        self.read_timer.start()
-
-    def create_generic_read_request(self, device_id, function, regAddr, readWrd):                             
-        data = None                                
+    def create_generic_read_request(self, device_id, function, regAddr, readWrd):
+        data = None
         if regAddr != None and readWrd != None:
             data = []
             data.append(device_id)
@@ -124,17 +79,50 @@ class BaseClient:
             logging.debug("{} {} => {}".format("create_request_payload", regAddr, data))
         return data
 
-    def __on_error(self, connectFailed = False, error = None):
-        logging.error(f"Exception occured: {error}")
-        self.__stop_service() if connectFailed else self.disconnect()
+    # BaseClient handles read operation
+    # SubClasses handle write
+    async def on_data_received(self, sender, response):
+        operation = bytes_to_int(response, 1, 1)
 
-    def __on_connect_fail(self, error):
-        logging.error(f"Connection failed: {error}")
-        self.__stop_service()
+        if operation == 3: # read operation
+            logging.debug(f"✅ DATA RECEIVED: Section Index: {self.section_index}")
 
-    def __stop_service(self):
-        if self.poll_timer is not None and self.poll_timer.is_alive():
-            self.poll_timer.cancel()
-        if self.poll_timer is not None: self.read_timer.cancel()
-        self.manager.stop()
-        os._exit(os.EX_OK)
+            if (self.section_index < len(self.sections) and
+                self.sections[self.section_index]['parser'] != None and
+                self.sections[self.section_index]['words'] * 2 + 5 == len(response)):
+                # parse and update data
+                try:
+                    self.sections[self.section_index]['parser'](response)
+                except Exception as e:
+                    logging.error(f"Error processing section {self.section_index}: {e}")
+
+            if self.section_index >= len(self.sections) - 1: # last section, read complete
+                self.section_index = 0
+                self.on_read_operation_complete()
+                # Reset the data for the next loop
+                self.data = {}
+            else:
+                self.section_index += 1
+                await asyncio.sleep(0.5)
+                await self.read_section()
+        else:
+            logging.warn("on_data_received: unknown operation={}".format(operation))
+
+    def on_read_operation_complete(self):
+        logging.debug("on_read_operation_complete!")
+        self.latest_data = self.data # Replace the latest data before its reset
+        self.is_reading = False # Free up thread
+        logging.debug(self.latest_data)
+
+    async def stop_service(self):
+        logging.info(f"🤖 Cleaning up {self.mac_address} client...")
+        await self.stop_polling()
+        # If terminated by another action
+        if self.ble_manager.device and self.ble_manager.device.is_connected:
+            try:
+                await self.ble_manager.disconnect()
+            except Exception as e:
+                logging.error(e)
+        self.is_connected = False
+        logging.info(f"👋 {self.mac_address} client closed.")
+
