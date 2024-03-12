@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import LeisurePanel from './LeisurePanel'
 import SolarPanel from './SolarPanel'
-import StarterPanel from './StarterPanel'
+import OutputPanel from './OutputPanel'
+import toast from 'react-hot-toast'
 
 function Home() {
   const API_URL = 'http://0.0.0.0:5000'
   const [data, setData] = useState({})
-  const [error, setError] = useState('')
+  const [error, setError] = useState('Connecting...')
 
   const fetchData = async () => {
     try {
@@ -19,7 +20,7 @@ function Home() {
 
       setError('')
     } catch (err) {
-      setError(err.message || 'Failed to fetch data from the server.')
+      setError(err.response?.data?.error || err.message)
     }
   }
   useEffect(() => {
@@ -31,17 +32,25 @@ function Home() {
     return () => clearInterval(interval) // Cleanup interval on component unmount
   }, [])
 
-  return error ? (
-    <div className="panel">Error: {error}</div>
-  ) : (
+  const handleErrorClick = () => {
+    if (error) {
+      toast.error(error)
+    } else {
+      toast.success('Connected')
+    }
+  }
+
+  return (
     <div className="fade-in-fast">
-      <LeisurePanel data={data} />
-      <div className="grid">
-        <div className="cell">
-          <SolarPanel data={data} />
-        </div>
-        <div className="cell">
-          <StarterPanel data={data} />
+      <div className={`home-panels ${error ? 'disconnected' : ''}`} onClick={handleErrorClick}>
+        <LeisurePanel data={data} error={error} />
+        <div className="grid gutter-1">
+          <div className="cell">
+            <SolarPanel data={data} />
+          </div>
+          <div className="cell">
+            <OutputPanel data={data} />
+          </div>
         </div>
       </div>
     </div>

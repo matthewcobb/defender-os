@@ -45,7 +45,7 @@ const LoadingVideo: React.FC<LoadingVideoProps> = ({ deviceFound }) => {
   }, [deviceFound])
 
   return (
-    <video ref={videoRef} width="832" height="400" muted poster={POSTER_SRC}>
+    <video ref={videoRef} width="1248" height="600" muted poster={POSTER_SRC}>
       <source src={VIDEO_SRC} type="video/mp4" />
       Your browser does not support the video tag.
     </video>

@@ -2,11 +2,14 @@
   --body-bg: #000000;
   --carplay-bg: #000000;
   --top-bar-bg: #1A1D1B;
-  --active-carplay: #90BF00;
-  --box-shadow: 0 2px 12px 0 rgba(0,0,0,0.4);
-  --container-border-radius: 2rem;
+  --active-carplay: #85e400;
+  --box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.3);
+  --container-border-radius: 1rem;
   --text-secondary: #aecbb8;
-  --panel-bg: rgba(166,197,178,0.28);
+  --panel-bg: rgb(83, 103, 90);
+  --panel-charging: rgb(15, 99, 47);
+  --charging-base: #85e400;
+  --charging-dark: #145404;
 }
 
 @import './styles/type';
@@ -25,7 +28,7 @@ html, body, #root {
   padding: 0;
   height: 100vh;
   font-family: 'Rubik';
-  font-size: 16px;
+  font-size: 20px;
 }
 
 body {
@@ -38,7 +41,7 @@ body {
   height: 100vh;
   touch-action: none;
   display: grid;
-  grid-template-columns: 400px 3rem auto;
+  grid-template-columns: 520px 3rem auto;
   overflow: hidden;
   transition: 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 
@@ -57,7 +60,7 @@ body {
     box-shadow: var(--box-shadow);
     display: grid;
     overflow: hidden;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     grid-template-rows: min-content auto min-content;
     overflow-y: auto;
     overflow-x: hidden;
@@ -79,7 +82,7 @@ body {
       width: 100%;
       box-sizing: border-box;
       letter-spacing: 0.125rem;
-      font-size: 14px;
+      font-size: 0.75rem;
       z-index: 10;
     }
 
@@ -95,19 +98,19 @@ body {
 
     nav {
       position: sticky;
-      bottom: 1rem;
+      bottom: 0rem;
       margin-top: 1rem;
-      width: calc(100% - 2rem);
-      left: 1rem;
-      right: 1rem;
+      width: calc(100% - 0rem);
+      left: 0rem;
+      right: 0rem;
       background: var(--panel-bg);
       box-shadow: var(--box-shadow);
-      border-radius: 0.5rem;
       backdrop-filter: blur(0.5rem);
       z-index: 10;
-      display: grid;
-      gap: 1rem;
-      justify-content: center;
+
+      .MuiTabs-root {
+        position: relative;
+      }
 
       .MuiButtonBase-root {
         min-width: 0px;
@@ -124,6 +127,14 @@ body {
       .active {
         border-top: 0.125rem solid var(--active-carplay);
       }
+    }
+  }
+
+  .home-panels {
+    transition: opacity 0.5s ease;
+    opacity: 1;
+    &.disconnected {
+      opacity: 0.5;
     }
   }
 
@@ -183,10 +194,6 @@ body {
       }
     }
   }
-}
-
-.text-secondary {
-  color: var(--text-secondary);
 }
 
 .fade-in-fast {

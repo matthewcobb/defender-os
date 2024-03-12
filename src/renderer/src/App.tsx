@@ -10,19 +10,19 @@ import Carplay from './components/Carplay'
 import Camera from './components/Camera'
 import { useCarplayStore } from './store/store'
 import Toggle from './components/Toggle'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   const carPlayRef = useRef<HTMLDivElement>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [receivingVideo, setReceivingVideo] = useState(false)
   const [commandCounter, setCommandCounter] = useState(0)
+
+  // Dimensions
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight
   })
-
-  const [keyCommand, setKeyCommand] = useState('')
-  const settings = useCarplayStore((state) => state.settings)
 
   useLayoutEffect(() => {
     if (carPlayRef.current) {
@@ -32,6 +32,9 @@ function App() {
       })
     }
   }, [])
+
+  const [keyCommand, setKeyCommand] = useState('')
+  const settings = useCarplayStore((state) => state.settings)
 
   useEffect(() => {
     document.addEventListener('keydown', onKeyDown)
@@ -63,7 +66,8 @@ function App() {
     <Router>
       <div id={'app'} className={`App ${drawerOpen ? 'drawer-open' : ''}`}>
         <main>
-          <TopBar/>
+          <Toaster position="top-right" />
+          <TopBar />
           <div className="page-container">
             <div className="page">
               <Routes>

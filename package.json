@@ -41,6 +41,7 @@
     "pcm-player": "^0.0.17",
     "pcm-ringbuf-player": "github:rhysmorgan134/pcm-ringbuf-player#main",
     "react-gauge-component": "^1.1.30",
+    "react-hot-toast": "^2.4.1",
     "react-loader-spinner": "^6.1.6",
     "react-router-dom": "^6.21.3",
     "sass": "^1.70.0",
