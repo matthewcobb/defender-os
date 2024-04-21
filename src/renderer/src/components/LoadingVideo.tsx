@@ -7,6 +7,8 @@ interface LoadingVideoProps {
 }
 
 const LoadingVideo: React.FC<LoadingVideoProps> = ({ deviceFound }) => {
+  const statusMessage = deviceFound ? '.: Connecting :.' : '.: Connect iPhone :.'
+
   const videoRef = useRef<HTMLVideoElement>(null)
   const loopHandler = useRef<(() => void) | null>(null) // Ref to store the loop handler function
 
@@ -45,10 +47,12 @@ const LoadingVideo: React.FC<LoadingVideoProps> = ({ deviceFound }) => {
   }, [deviceFound])
 
   return (
-    <video ref={videoRef} width="1248" height="600" muted poster={POSTER_SRC}>
-      <source src={VIDEO_SRC} type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
+    <div className="loading-video">
+      <div className="message">{statusMessage}</div>
+      <video ref={videoRef} width="1248" height="600" muted poster={POSTER_SRC}>
+        <source src={VIDEO_SRC} type="video/mp4" />
+      </video>
+    </div>
   )
 }
 

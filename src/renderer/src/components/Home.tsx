@@ -44,14 +44,8 @@ function Home() {
     <div className="fade-in-fast">
       <div className={`home-panels ${error ? 'disconnected' : ''}`} onClick={handleErrorClick}>
         <LeisurePanel data={data} error={error} />
-        <div className="grid gutter-1">
-          <div className="cell">
-            <SolarPanel data={data} />
-          </div>
-          <div className="cell">
-            <OutputPanel data={data} />
-          </div>
-        </div>
+        <SolarPanel data={data} />
+        <OutputPanel data={data} />
       </div>
     </div>
   )

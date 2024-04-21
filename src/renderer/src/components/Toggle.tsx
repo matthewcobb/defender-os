@@ -3,15 +3,15 @@ import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRound
 
 interface ToggleProps {
   drawerOpen: boolean
-  setDrawerOpen: (drawerOpen: boolean) => void
+  setDrawerOpen: (drawerState: boolean) => void
 }
 
-function Toggle({ drawerOpen, setDrawerOpen }: ToggleProps) {
+function Toggle({ drawerState, setDrawerState }: ToggleProps) {
   const drawerToggle = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function toggleDrawer() {
-      setDrawerOpen((prevDrawerOpen) => {
+      setDrawerState((prevDrawerOpen) => {
         const newVal = !prevDrawerOpen
         console.log(newVal)
         return newVal
@@ -25,10 +25,10 @@ function Toggle({ drawerOpen, setDrawerOpen }: ToggleProps) {
         drawerToggleElement.removeEventListener('click', toggleDrawer)
       }
     }
-  }, [drawerOpen])
+  }, [drawerState])
 
   return (
-    <div ref={drawerToggle} className={`toggle ${drawerOpen ? 'drawer-open' : ''}`}>
+    <div ref={drawerToggle} className={`toggle ${drawerState ? 'drawer-open' : ''}`}>
       <div className="icon">
         <ArrowForwardIosRoundedIcon />
       </div>

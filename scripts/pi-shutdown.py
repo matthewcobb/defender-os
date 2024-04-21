@@ -34,7 +34,7 @@ subprocess.run(['python3', filename])
 print("Running carPiHat.py")
 
 IGN_PIN = 12
-IGN_LOW_TIME = 10
+IGN_LOW_TIME = 60
 
 chip = gpiod.Chip('gpiochip4')
 ign_line = chip.get_line(IGN_PIN)

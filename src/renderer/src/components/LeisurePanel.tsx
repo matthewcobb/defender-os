@@ -2,10 +2,10 @@ import { CircularProgressBar } from '@tomickigrzegorz/react-circular-progress-ba
 import { ThreeDots } from 'react-loader-spinner'
 
 function LeisurePanel({ data, error }) {
-  const is_charging = data['load_output'] < 0
+  const is_charging = data['load_output'] > 0
 
   return (
-    <div className="grid mb-1">
+    <div className="grid grid-col-span-2">
       <div className={`panel ${is_charging ? 'charging' : ''}`}>
         <div className="grid grid-middle gutter-1">
           <div className="cell-shrink">
@@ -24,12 +24,10 @@ function LeisurePanel({ data, error }) {
           <div className="cell">
             {error ? (
               <div>
-                <h3 className="">Connecting...</h3>
-                <div className="grid grid-middle">
-                  <h3>
-                    <ThreeDots height="40" width="40" color={'white'} />
-                  </h3>
-                </div>
+                <h3 className="">Connecting</h3>
+                <p className="mt-05">
+                  Please wait...
+                </p>
               </div>
             ) : is_charging ? (
               <div>

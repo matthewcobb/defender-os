@@ -2,7 +2,7 @@ import ElectricCarIcon from '@mui/icons-material/ElectricCar'
 
 function OutputPanel({ data }) {
   return (
-    <div className="panel mb-1">
+    <div className="panel">
       <p className="grid">
         <ElectricCarIcon fontSize="small" />
         Output

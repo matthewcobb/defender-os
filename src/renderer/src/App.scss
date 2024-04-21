@@ -1,15 +1,15 @@
 :root {
   --body-bg: #000000;
   --carplay-bg: #000000;
-  --top-bar-bg: #1A1D1B;
-  --active-carplay: #85e400;
+  --top-bar-bg: rgba(18, 25, 21, 0.764);
+  --active-carplay: #00e448;
   --box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.3);
   --container-border-radius: 1rem;
   --text-secondary: #aecbb8;
-  --panel-bg: rgb(83, 103, 90);
+  --panel-bg: rgba(153, 188, 165, 0.15);
   --panel-charging: rgb(15, 99, 47);
-  --charging-base: #85e400;
-  --charging-dark: #145404;
+  --charging-base: #00e448;
+  --charging-dark: #04542c;
 }
 
 @import './styles/type';
@@ -18,6 +18,9 @@
 @import './styles/spacing';
 @import './styles/border';
 @import './styles/progress';
+
+@import './styles/components/loading-video';
+@import './styles/components/launcher';
 
 .App {
   animation: app-entrance 2s ease-in-out;
@@ -41,28 +44,44 @@ body {
   height: 100vh;
   touch-action: none;
   display: grid;
-  grid-template-columns: 520px 3rem auto;
+  grid-template-columns: 33% auto;
+  gap: 1rem;
   overflow: hidden;
   transition: 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 
   &.drawer-open {
-    grid-template-columns: 800px 3rem auto;
+    grid-template-columns: 66vw auto;
     aside {
       opacity: 0.2;
     }
   }
 
   main {
-    background-image: radial-gradient(circle at 50% 50%, #44534A 0%, #202A24 100%);
+    // background-image: radial-gradient(circle at 50% 50%, #44534A 0%, #202A24 100%);
+    background: linear-gradient(-45deg, #7c9386, #44534A, #202A24, #0e1310);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh;
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
     height: 100vh;
     box-sizing: content-box;
     position: relative;
     box-shadow: var(--box-shadow);
     display: grid;
-    overflow: hidden;
     border-radius: 1rem;
     grid-template-rows: min-content auto min-content;
-    overflow-y: auto;
     overflow-x: hidden;
 
     // Styling the scrollbar
@@ -99,25 +118,28 @@ body {
     nav {
       position: sticky;
       bottom: 0rem;
-      margin-top: 1rem;
-      width: calc(100% - 0rem);
-      left: 0rem;
-      right: 0rem;
+      padding: 0 0 0 1rem;
       background: var(--panel-bg);
       box-shadow: var(--box-shadow);
       backdrop-filter: blur(0.5rem);
       z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr auto;
 
       .MuiTabs-root {
         position: relative;
       }
 
       .MuiButtonBase-root {
-        min-width: 0px;
+        // min-width: 0;
+      }
+
+      .MuiTab-root {
+        color: var(--top-bar-bg);
       }
 
       .Mui-selected {
-        color: white;
+        color: white !important;
       }
 
       .MuiTabs-indicator {
@@ -131,8 +153,12 @@ body {
   }
 
   .home-panels {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
     transition: opacity 0.5s ease;
     opacity: 1;
+
     &.disconnected {
       opacity: 0.5;
     }
@@ -144,25 +170,19 @@ body {
     justify-content: center;
     cursor: pointer;
     z-index: 1;
+    padding: 0 1rem;
+    // background-color: rgba(0,0,0, 0.2);
 
     .icon {
       transition: transform 0.2s ease;
     }
 
-    &:after {
-      content:"";
-      position: absolute;
-      width: 100vw;
-      height: 100vh;
-      display: none;
-    }
-
     &.drawer-open {
-      &:after {
-        display: block;
-      }
       .icon {
         transform: rotate(180deg);
+        svg {
+          vertical-align: middle;
+        }
       }
     }
   }
