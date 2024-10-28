@@ -44,7 +44,7 @@ function TopBar() {
       <p className="app-name">
         DEFENDER<span className="text-secondary">OS</span>
       </p>
-      <div className="cpu-temp monospace">{error ? '--' : cpuTemp.temp}ºC</div>
+      <p className="cpu-temp monospace">{error ? '--' : cpuTemp.temp}ºC</p>
       <p className="monospace">{date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
     </div>
   )

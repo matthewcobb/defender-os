@@ -7,7 +7,7 @@ interface LoadingVideoProps {
 }
 
 const LoadingVideo: React.FC<LoadingVideoProps> = ({ deviceFound }) => {
-  const statusMessage = deviceFound ? '.: Connecting :.' : '.: Connect iPhone :.'
+  const statusMessage = deviceFound ? 'Connecting' : 'Connect iPhone'
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const loopHandler = useRef<(() => void) | null>(null) // Ref to store the loop handler function
