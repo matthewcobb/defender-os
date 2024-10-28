@@ -1,15 +1,15 @@
 import ElectricCarIcon from '@mui/icons-material/ElectricCar'
 
-function StarterPanel({ data }) {
+function OutputPanel({ data }) {
   return (
-    <div className="panel mb-1">
+    <div className="panel">
       <p className="grid">
         <ElectricCarIcon fontSize="small" />
-        Starter
+        Output
       </p>
-      <h2>14.5v</h2>
+      <h2>{data['load_output'] || 0}w</h2>
     </div>
   )
 }
 
-export default StarterPanel
+export default OutputPanel

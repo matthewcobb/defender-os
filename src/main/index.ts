@@ -78,8 +78,8 @@ console.log(app.commandLine.hasSwitch('disable-webusb-security'))
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 400,
+    width: 1600,
+    height: 600,
     kiosk: config!.kiosk,
     show: false,
     frame: false,
