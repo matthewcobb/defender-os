@@ -44,12 +44,15 @@ function Carplay({
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const stream = useCarplayStore((state) => state.stream)
 
-  console.log(width, height)
   const config = {
     fps: settings.fps,
     width: width,
     height: height,
-    mediaDelay: settings.mediaDelay
+    mediaDelay: settings.mediaDelay,
+    dpi: settings.dpi,
+    micType: settings.micType,
+    microphone: settings.microphone,
+    camera: settings.camera
   }
   // const pathname = "/"
   console.log(pathname)

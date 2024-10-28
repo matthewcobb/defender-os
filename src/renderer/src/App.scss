@@ -3,7 +3,7 @@
   --carplay-bg: #000000;
   --top-bar-bg: rgba(18, 25, 21, 0.764);
   --active-carplay: #00e448;
-  --box-shadow: 0 0.25rem 0.5rem 0 rgba(0,0,0,0.3);
+  --box-shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.3);
   --container-border-radius: 1rem;
   --text-secondary: #aecbb8;
   --panel-bg: rgba(153, 188, 165, 0.15);
@@ -26,7 +26,9 @@
   animation: app-entrance 2s ease-in-out;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   height: 100vh;
@@ -51,6 +53,7 @@ body {
 
   &.drawer-open {
     grid-template-columns: 66vw auto;
+
     aside {
       opacity: 0.2;
     }
@@ -67,9 +70,11 @@ body {
       0% {
         background-position: 0% 50%;
       }
+
       50% {
         background-position: 100% 50%;
       }
+
       100% {
         background-position: 0% 50%;
       }
@@ -86,10 +91,11 @@ body {
 
     // Styling the scrollbar
     &::-webkit-scrollbar {
-      display:none;
+      display: none;
     }
 
     .top-bar {
+      backdrop-filter: blur(0.5rem);
       background-color: var(--top-bar-bg);
       position: sticky;
       top: 0;
@@ -110,12 +116,14 @@ body {
       box-sizing: border-box;
       padding: 1rem;
       container-type: inline-size;
+
       .page {
         padding-bottom: 0;
       }
     }
 
     nav {
+      backdrop-filter: blur(0.5rem);
       position: sticky;
       bottom: 0rem;
       padding: 0 0 0 1rem;
@@ -179,6 +187,7 @@ body {
     &.drawer-open {
       .icon {
         transform: rotate(180deg);
+
         svg {
           vertical-align: middle;
         }
@@ -202,6 +211,7 @@ body {
         display: grid;
         justify-content: center;
         align-items: center;
+
         video {
           height: 100%;
           margin: 0 auto;
@@ -227,6 +237,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 100;
   }
@@ -237,6 +248,7 @@ body {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 100;
     transform: scale(1);

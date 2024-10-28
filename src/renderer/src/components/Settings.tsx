@@ -91,6 +91,7 @@ function Settings({ settings }: SettingsProps) {
       <Grid key={'dpi'} xs={4}>
         <TextField
           label={'DPI'}
+          type="number"
           inputProps={{ inputMode: 'numeric' }}
           value={activeSettings.dpi}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,6 +116,7 @@ function Settings({ settings }: SettingsProps) {
       <Grid key={'fps'} xs={4}>
         <TextField
           label={'FPS'}
+          type="number"
           inputProps={{ inputMode: 'numeric' }}
           value={activeSettings.fps}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,6 +142,7 @@ function Settings({ settings }: SettingsProps) {
         <TextField
           label={'MEDIA DELAY'}
           inputProps={{ inputMode: 'numeric' }}
+          type="number"
           value={activeSettings.mediaDelay}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             settingsChange('mediaDelay', parseInt(event.target.value))
@@ -203,7 +206,7 @@ function Settings({ settings }: SettingsProps) {
       return (
         <Grid key={'WIFI'} xs={4}>
           <FormControl>
-            <FormLabel id={'WIFI'}>MIC TYPE</FormLabel>
+            <FormLabel id={'WIFI'}>Wifi TYPE</FormLabel>
             <RadioGroup
               row
               value={activeSettings.wifiType}
