@@ -24,6 +24,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: npm install
-      - run: CI=false npm run build-package
+          cache: 'yarn'
+      - run: yarn
+      - run: CI=false yarn build:pi
